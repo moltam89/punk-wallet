@@ -401,6 +401,15 @@ function App(props) {
                 result = await userProvider.send(payload.method, payload.params)
               }
             }
+            if (payload.method === 'personal_sign') {
+              let signer = userProvider.getSigner();
+
+              //result = await userProvider.send(payload.method, payload.params)
+
+              result = await signer.signMessage(ethers.utils.isHexString(payload.params[0]) ? ethers.utils.arrayify(payload.params[0]) : payload.params[0]);
+              console.log("result", result);
+
+            }
             else {
               result = await userProvider.send(payload.method, payload.params)
             }
