@@ -16,6 +16,7 @@ export default function WalletImport({setShowImport}) {
 	    const calculatePK = async () => {
 	      if(importMnemonic){
 	        const ethersSeed = ethers.utils.mnemonicToSeed(importMnemonic, password);
+	        console.log("ethersSeed", ethersSeed);
 	        const ethersHDNode = ethers.utils.HDNode.fromSeed(ethersSeed);
 
 	        const wallet_hdpath = "m/44'/60'/0'/0/";
@@ -23,6 +24,7 @@ export default function WalletImport({setShowImport}) {
 	        
 	        const ethersDerivedHDNode = ethersHDNode.derivePath(fullPath);
 	        const ethersPrivateKey = ethersDerivedHDNode.privateKey;
+	        console.log("ethersPrivateKey", ethersPrivateKey);
 
 	        setImportPrivatekey(ethersPrivateKey);
 	      }
@@ -38,7 +40,8 @@ export default function WalletImport({setShowImport}) {
 	      if(importPrivatekey){
 	        try{
 	          const officialEthersWallet = new ethers.Wallet(importPrivatekey)
-	          console.log(officialEthersWallet)
+	          console.log("importPrivatekey", importPrivatekey);
+	          console.log("officialEthersWallet.address", officialEthersWallet.address);
 	          setImportAddress(officialEthersWallet.address)
 	        }catch(e){
 	          console.log(e)
