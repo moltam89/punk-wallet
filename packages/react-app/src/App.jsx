@@ -985,6 +985,7 @@ function App(props) {
               address={address}
               provider={localProvider}
               gasPrice={gasPrice}
+              buidlMode={buidlMode}
               onChange={value => {
                 setAmount(value);
               }}

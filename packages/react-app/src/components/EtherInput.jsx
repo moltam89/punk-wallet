@@ -76,8 +76,11 @@ export default function EtherInput(props) {
     if (!props.price) return "";
     return (
       <div
-        style={{ cursor: "pointer" }}
+        style={ { cursor: !props.buidlMode ? "pointer" : "default"}}
         onClick={() => {
+          if (props.buidlMode) {
+            return;
+          }
           if (mode === "USD") {
             setMode(props.token);
             displayMax ? setDisplay(getBalance("ETH")) : setDisplay(currentValue);
@@ -99,12 +102,18 @@ export default function EtherInput(props) {
 
   let prefix;
   let addonAfter;
-  if (mode === "USD") {
-    prefix = "$";
-    addonAfter = option("USD 🔀");
-  } else {
-    prefix = "Ξ";
-    addonAfter = option(props.token + " 🔀");
+
+  if (props.buidlMode) {
+    prefix = "";
+  }
+  else {
+    if (mode === "USD") {
+      prefix = "$";
+      addonAfter = option("USD 🔀");
+    } else {
+      prefix = "Ξ";
+      addonAfter = option(props.token + " 🔀");
+    }
   }
 
   useEffect(() => {
@@ -115,20 +124,22 @@ export default function EtherInput(props) {
 
   return (
     <div>
-      <span
-        style={{ cursor: "pointer", color: "red", float: "right", marginTop: "-5px" }}
-        onClick={() => {
-          setDisplay(getBalance(mode));
-          setDisplayMax(true);
-          if (typeof props.onChange === "function") {
-            props.onChange(floatBalance);
-          }
-        }}
-      >
-        max
-      </span>
+      {!props.buidlMode &&
+        <span
+          style={{ cursor: "pointer", color: "red", float: "right", marginTop: "-5px" }}
+          onClick={() => {
+            setDisplay(getBalance(mode));
+            setDisplayMax(true);
+            if (typeof props.onChange === "function") {
+              props.onChange(floatBalance);
+            }
+          }}
+        >
+          max
+        </span>
+      }
       <Input
-        placeholder={props.placeholder ? props.placeholder : "amount in " + mode}
+        placeholder={props.buidlMode ? "amount of BUIDL" : (props.placeholder ? props.placeholder : "amount in " + mode)}
         autoFocus={props.autoFocus}
         prefix={prefix}
         value={display}
