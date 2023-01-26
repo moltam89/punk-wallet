@@ -34,9 +34,7 @@ const BUIDL_MODE = "BUIDL";
 const ETH_MODE = "ETH";
 
 export default function Balance(props) {
-  const [buidlMode, setBuidlMode] = useState(true);
-
-
+ 
   const [dollarMode, setDollarMode] = useState(true);
 
   // const [listening, setListening] = useState(false);
@@ -86,43 +84,50 @@ export default function Balance(props) {
   );
 
   const buidlSelect = (
-    <Select
-      size="large"
-      defaultValue={buidlMode ? BUIDL_MODE : ETH_MODE}
-      style={{ textAlign: "left", width: 170, fontSize: 30 }}
-      listHeight={1024}
-      onChange={value => {
-        if (value == BUIDL_MODE) {
-          setBuidlMode(true);
-        }
-        else if (value == ETH_MODE) {
-          setBuidlMode(false);
-        }
-      }}
-    >
-      {options}
-    </Select>
+    <div>
+      <Select
+        size="large"
+        defaultValue={props.buidlMode ? BUIDL_MODE : ETH_MODE}
+        style={{ textAlign: "left", width: 170, fontSize: 30 }}
+        listHeight={1024}
+        onChange={value => {
+          if (value == BUIDL_MODE) {
+            window.localStorage.setItem("buidlMode", true);
+          }
+          else {
+            window.localStorage.setItem("buidlMode", false);
+          }
+          setTimeout(() => {
+            window.location.reload();
+          }, 1);
+        }}
+      >
+        {options}
+      </Select>
+    </div>
   );
 
   return (
    <>
      {buidlSelect}
-     {!buidlMode &&
-        <span
-          style={{
-            verticalAlign: "middle",
-            fontSize: props.size ? props.size : 24,
-            padding: 8,
-            cursor: "pointer",
-          }}
-          onClick={() => {
-            setDollarMode(!dollarMode);
-          }}
-        >
-          {displayBalance}
-        </span>
+     {!props.buidlMode &&
+        <div>
+          <span
+            style={{
+              verticalAlign: "middle",
+              fontSize: props.size ? props.size : 24,
+              padding: 8,
+              cursor: "pointer",
+            }}
+            onClick={() => {
+              setDollarMode(!dollarMode);
+            }}
+          >
+            {displayBalance}
+          </span>
+        </div>
       }
-      {buidlMode && <ERC20Balance size={props.size} userProvider={props.userProvider} rpcURL={props.targetNetwork.rpcUrl} address={props.address} />}
+      {props.buidlMode && <ERC20Balance size={props.size} userProvider={props.userProvider} rpcURL={props.targetNetwork.rpcUrl} address={props.address} />}
     </>
   );
 }

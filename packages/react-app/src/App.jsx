@@ -54,6 +54,12 @@ const { ethers } = require("ethers");
     (and then use the `useExternalContractLoader()` hook!)
 */
 
+const storedBuidlModeString = window.localStorage.getItem("buidlMode");
+let buidlMode = true;
+if (storedBuidlModeString && storedBuidlModeString == "false") {
+  buidlMode = false;
+}
+
 /// 📡 What chain are your contracts deployed to?
 const cachedNetwork = window.localStorage.getItem("network");
 let targetNetwork = NETWORKS[cachedNetwork || "ethereum"]; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
@@ -913,6 +919,7 @@ function App(props) {
           userProvider={userProvider}
           address={address}
           targetNetwork={targetNetwork}
+          buidlMode={buidlMode}
         />
       </div>
 

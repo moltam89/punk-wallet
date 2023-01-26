@@ -37,7 +37,6 @@ export default function ERC20Balance({erc20TokenAddress = "0x994ca14dbD0937577B3
     getBalance();
   }, [address])
 
-
   return (
     <span
       style={{
@@ -48,7 +47,6 @@ export default function ERC20Balance({erc20TokenAddress = "0x994ca14dbD0937577B3
 
     >
       {balance && balance.toFixed(2)}
-      
     </span>
   );
 }
