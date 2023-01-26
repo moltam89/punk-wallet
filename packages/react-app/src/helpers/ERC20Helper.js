@@ -19,7 +19,7 @@ const abi = [
 ];
 
 
-class ERC20Helper {
+export class ERC20Helper {
 	constructor(tokenAddress, wallet, rpcURL) {
 		this.tokenAddress = tokenAddress;
 		this.wallet = wallet;
@@ -98,15 +98,6 @@ class ERC20Helper {
 		return Number(decimalCorrectedAmountString);
 	}
 }
-
-module.exports = {
-	ERC20Helper
-}
-
-
-
-
-
 
 
 
