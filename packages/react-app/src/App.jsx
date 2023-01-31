@@ -1,5 +1,5 @@
 import { CaretUpOutlined, ScanOutlined, SendOutlined, ReloadOutlined } from "@ant-design/icons";
-import { JsonRpcProvider, StaticJsonRpcProvider, Web3Provider } from "@ethersproject/providers";
+import { JsonRpcProvider, StaticJsonRpcProvider } from "@ethersproject/providers";
 import { formatEther, parseEther } from "@ethersproject/units";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { Alert, Button, Col, Row, Select, Spin, Input, Modal, notification } from "antd";
@@ -32,6 +32,8 @@ import WalletConnect from "@walletconnect/client";
 import { TransactionManager } from "./helpers/TransactionManager";
 import { EIP618Helper } from "./helpers/EIP618Helper";
 
+import { Web3Provider } from "zksync-web3";
+
 const { confirm } = Modal;
 
 const { ethers } = require("ethers");
@@ -61,7 +63,8 @@ if (storedBuidlModeString && storedBuidlModeString == "false") {
 }
 
 /// 📡 What chain are your contracts deployed to?
-const cachedNetwork = window.localStorage.getItem("network");
+//const cachedNetwork = window.localStorage.getItem("network");
+const cachedNetwork = "zksyncalpha"
 let targetNetwork = NETWORKS[cachedNetwork || "ethereum"]; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 if (!targetNetwork) {
   targetNetwork = NETWORKS["ethereum"];
@@ -736,7 +739,9 @@ function App(props) {
       console.log("LOGOUT!");
       logoutOfWeb3Modal();
     });
-    setInjectedProvider(new Web3Provider(provider));
+
+    const zksyncProvider = new Web3Provider(provider);
+    setInjectedProvider(zksyncProvider);
   }, [setInjectedProvider]);
 
   useEffect(() => {

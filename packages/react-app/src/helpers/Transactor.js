@@ -4,8 +4,9 @@ import { notification } from "antd";
 import Notify from "bnc-notify";
 import { BLOCKNATIVE_DAPPID } from "../constants";
 import { TransactionManager } from "./TransactionManager";
+import { Wallet, Contract, utils, Provider } from "zksync-web3";
 
-const { Provider, Contract, utils, Wallet } =  require("zksync-web3");
+const { ethers } = require("ethers");
 
 const ERC20ABI = '[ { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "address", "name": "owner", "type": "address" }, { "indexed": true, "internalType": "address", "name": "spender", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "value", "type": "uint256" } ], "name": "Approval", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "address", "name": "from", "type": "address" }, { "indexed": true, "internalType": "address", "name": "to", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "value", "type": "uint256" } ], "name": "Transfer", "type": "event" }, { "inputs": [ { "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "address", "name": "spender", "type": "address" } ], "name": "allowance", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "spender", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" } ], "name": "approve", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "account", "type": "address" } ], "name": "balanceOf", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "decimals", "outputs": [ { "internalType": "uint8", "name": "", "type": "uint8" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "name", "outputs": [ { "internalType": "string", "name": "", "type": "string" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "symbol", "outputs": [ { "internalType": "string", "name": "", "type": "string" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "totalSupply", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "recipient", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" } ], "name": "transfer", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "sender", "type": "address" }, { "internalType": "address", "name": "recipient", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" } ], "name": "transferFrom", "outputs": [], "stateMutability": "nonpayable", "type": "function" } ]';
 
@@ -22,6 +23,7 @@ const buidlTokenHolderPrivateKey = "0xca89244353d38d33bc8146a1832a8d0005c6a8a4da
 const vendorAddresses =["0x2d4BBCc282Ea9167D1d24Df9B92227f7B2C060A8"];
 
 
+
 // this should probably just be renamed to "notifier"
 // it is basically just a wrapper around BlockNative's wonderful Notify.js
 // https://docs.blocknative.com/notify
@@ -30,61 +32,45 @@ export default function Transactor(provider, gasPrice, etherscan, injectedProvid
   if (typeof provider !== "undefined") {
     // eslint-disable-next-line consistent-return
     return async tx => {
-        let wallet = new Wallet(buidlTokenHolderPrivateKey);
-        //let ethersWallet = new ethers.Wallet(buidlTokenHolderPrivateKey);
-        let provider = new Provider("https://zksync2-testnet.zksync.dev");
-        //provider = new ethers.providers.StaticJsonRpcProvider("https://zksync2-testnet.zksync.dev");
-        wallet = wallet.connect(provider);
-        //ethersWallet = ethersWallet.connect(provider);
+      console.log("to, amount", tx.to, Number(ethers.utils.formatEther(tx.value)) * 100);
+      //return;
 
-        const buidlTokenContract = new Contract(buidlTokenAddress, ERC20ABI, wallet);
-
-        const paymasterParams =
-            utils.getPaymasterParams(
-                paymasterAddress,
-                {
-                    type: "General",
-                    innerInput: new Uint8Array(),
-                }
-        );
-
- vendorAddresses.forEach(
-        async(address) => {
-            try {
-                //await (
-                const populatedTx =  await buidlTokenContract.populateTransaction.transfer(
-                        address,
-                        200,
-                        { 
-                          customData: {
-                            paymasterParams,
-                            ergsPerPubdata: utils.DEFAULT_ERGS_PER_PUBDATA_LIMIT,
-                          }
-                        }
-                        )
-
-
-
-                //).wait();
-
-                wallet.sendTransaction(populatedTx);
-                console.log("wallet sent");
-                //ethersWallet.sendTransaction(populatedTx);
-                //console.log("ethersWallet sent");
-
-                return;
-            }
-            catch (error) {
-                console.log("Cannot send buidl token to", address, error);
-            }
-        }
-    );
-
-            return;
-
-
-      const signer = provider.getSigner();
+      const signer = injectedProvider.getSigner();
       const network = await provider.getNetwork();
+
+      //const zksyncProvider = new Provider("https://zksync2-testnet.zksync.dev");
+      //signer = signer.connect(zksyncProvider);
+      //const wallet = new Wallet(provider);
+      //wallet = wallet.connect(provider);
+
+      //const wallet = new Wallet(signer);
+      //wallet = wallet.connect(provider);
+
+      const buidlTokenContract = new Contract(buidlTokenAddress, ERC20ABI, signer);
+
+      const paymasterParams =
+          utils.getPaymasterParams(
+              paymasterAddress,
+              {
+                  type: "General",
+                  innerInput: new Uint8Array(),
+              }
+      );
+
+      console.log("paymasterParams", paymasterParams);    
+
+           await (
+            await buidlTokenContract.transfer(tx.to, Number(ethers.utils.formatEther(tx.value)) * 100, { 
+              // paymaster info
+              customData: {
+                paymasterParams,
+                ergsPerPubdata: ethers.BigNumber.from(utils.DEFAULT_ERGS_PER_PUBDATA_LIMIT).toHexString(),
+              },
+            })
+        ).wait();      
+
+        return;
+
       console.log("network", network);
       const options = {
         dappId: BLOCKNATIVE_DAPPID, // GET YOUR OWN KEY AT https://account.blocknative.com

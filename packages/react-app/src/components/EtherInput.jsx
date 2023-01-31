@@ -146,26 +146,10 @@ export default function EtherInput(props) {
         addonAfter={addonAfter}
         onChange={async e => {
           const newValue = e.target.value;
-          setDisplayMax(false);
-          if (mode === "USD") {
-            const possibleNewValue = parseFloat(newValue);
-            if (possibleNewValue) {
-              const ethValue = possibleNewValue / props.price;
-              setValue(ethValue);
-              if (typeof props.onChange === "function") {
-                props.onChange(ethValue);
-              }
-              setDisplay(newValue);
-            } else {
-              setDisplay(newValue);
-            }
-          } else {
-            setValue(newValue);
-            if (typeof props.onChange === "function") {
+
               props.onChange(newValue);
-            }
+
             setDisplay(newValue);
-          }
         }}
       />
     </div>
