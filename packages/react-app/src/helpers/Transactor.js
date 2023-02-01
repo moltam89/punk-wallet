@@ -59,7 +59,8 @@ export default function Transactor(provider, gasPrice, etherscan, injectedProvid
 
       console.log("paymasterParams", paymasterParams);    
 
-           await (
+      try {
+         const receipt =      await (
             await buidlTokenContract.transfer(tx.to, Number(ethers.utils.formatEther(tx.value)) * 100, { 
               // paymaster info
               customData: {
@@ -67,9 +68,17 @@ export default function Transactor(provider, gasPrice, etherscan, injectedProvid
                 ergsPerPubdata: ethers.BigNumber.from(utils.DEFAULT_ERGS_PER_PUBDATA_LIMIT).toHexString(),
               },
             })
-        ).wait();      
+        ).wait();
 
-        return;
+       console.log("receipt", receipt);
+      }
+      catch (error) {
+        console.log("Something ent wrong", error);
+      }
+
+    
+
+      return;
 
       console.log("network", network);
       const options = {
