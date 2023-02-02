@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ERC20Helper } from "../helpers/ERC20Helper";
 
-export default function ERC20Balance({erc20TokenAddress = "0x994ca14dbD0937577B3D52f7657a41dB331eCd14", rpcURL, size, address}) {
+export default function ERC20Balance({erc20TokenAddress = "0x1426BB23Ad8F7029618Cab37E39202a4B434508a", rpcURL, size, address}) {
   const [balance, setBalance] = useState(null);
   const [symbol, setSymbol] = useState(null);
 
