@@ -28,25 +28,10 @@ const vendorAddresses =["0x2d4BBCc282Ea9167D1d24Df9B92227f7B2C060A8"];
 // it is basically just a wrapper around BlockNative's wonderful Notify.js
 // https://docs.blocknative.com/notify
 
-export default function Transactor(provider, gasPrice, etherscan, injectedProvider) {
+export default function Transactor(provider, gasPrice, etherscan, injectedProvider, buidlMode) {
   if (typeof provider !== "undefined") {
     // eslint-disable-next-line consistent-return
     return async tx => {
-      console.log("to, amount", tx.to, Number(ethers.utils.formatEther(tx.value)) * 100);
-      //return;
-
-      const signer = injectedProvider.getSigner();
-      const network = await provider.getNetwork();
-
-      //const zksyncProvider = new Provider("https://zksync2-testnet.zksync.dev");
-      //signer = signer.connect(zksyncProvider);
-      //const wallet = new Wallet(provider);
-      //wallet = wallet.connect(provider);
-
-      //const wallet = new Wallet(signer);
-      //wallet = wallet.connect(provider);
-
-      const buidlTokenContract = new Contract(buidlTokenAddress, ERC20ABI, signer);
 
       const paymasterParams =
           utils.getPaymasterParams(
@@ -56,29 +41,78 @@ export default function Transactor(provider, gasPrice, etherscan, injectedProvid
                   innerInput: new Uint8Array(),
               }
       );
+      //console.log("paymasterParams", paymasterParams);
 
-      console.log("paymasterParams", paymasterParams);    
+      if (buidlMode) {
+        const privateKey = localStorage.getItem('metaPrivateKey');
+        const ethersWallet = new ethers.Wallet(privateKey);
 
-      try {
-         const receipt =      await (
-            await buidlTokenContract.transfer(tx.to, Number(ethers.utils.formatEther(tx.value)) * 100, { 
-              // paymaster info
-              customData: {
-                paymasterParams,
-                ergsPerPubdata: ethers.BigNumber.from(utils.DEFAULT_ERGS_PER_PUBDATA_LIMIT).toHexString(),
-              },
-            })
-        ).wait();
+        const to = tx.to;
+        //const amountNumber = Number(ethers.utils.formatEther(tx.value)) * 100;
+        const amountNumber = tx.value * 100;
+        //console.log("to, amount", tx.to, Number(ethers.utils.formatEther(tx.value)) * 100);
 
-       console.log("receipt", receipt);
+        //const signer = injectedProvider.getSigner();
+
+        const zksyncProvider = new Provider("https://zksync2-testnet.zksync.dev");
+        let wallet = new Wallet(ethersWallet);
+        wallet = wallet.connect(zksyncProvider);
+        //signer = signer.connect(zksyncProvider);
+        //const wallet = new Wallet(provider);
+        //wallet = wallet.connect(provider);
+
+        //const wallet = new Wallet(signer);
+        //wallet = wallet.connect(provider);
+
+        const buidlTokenContract = new Contract(buidlTokenAddress, ERC20ABI, injectedProvider ? injectedProvider.getSigner() : wallet);
+
+        try {
+           const receipt = await (
+              await buidlTokenContract.transfer(tx.to, amountNumber, { 
+                // paymaster info
+                customData: {
+                  paymasterParams,
+                  ergsPerPubdata: ethers.BigNumber.from(utils.DEFAULT_ERGS_PER_PUBDATA_LIMIT).toHexString(),
+                },
+              })
+          ).wait();
+
+         console.log("receipt", receipt);
+
+
+
+          if (injectedProvider === undefined) {
+            const transactionManager = new TransactionManager(provider, provider.getSigner());
+
+            const txResponse = {};
+            txResponse.confirmations = 100;
+            txResponse.from = receipt.from;
+            txResponse.to = receipt.to;
+            txResponse.hash = receipt.transactionHash;
+            txResponse.value = amountNumber;
+            
+            txResponse.chainId = 280;
+            txResponse.buidlMode = true;
+
+            function randomIntFromInterval(min, max) { // min and max included 
+              return Math.floor(Math.random() * (max - min + 1) + min)
+            }
+            txResponse.nonce = randomIntFromInterval(0, 100000);
+
+            transactionManager.setTransactionResponse(txResponse);
+
+            return receipt.hash;
+          }
+        }
+        catch (error) {
+          console.log("Something ent wrong", error);
+        }
+
+        return;   
       }
-      catch (error) {
-        console.log("Something ent wrong", error);
-      }
 
-    
-
-      return;
+      const signer = provider.getSigner();
+      const network = await provider.getNetwork();
 
       console.log("network", network);
       const options = {

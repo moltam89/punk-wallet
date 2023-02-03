@@ -221,7 +221,7 @@ function App(props) {
   // For more hooks, check out 🔗eth-hooks at: https://www.npmjs.com/package/eth-hooks
 
   // The transactor wraps transactions and provides notificiations
-  const tx = Transactor(userProvider, gasPrice, undefined, injectedProvider);
+  const tx = Transactor(userProvider, gasPrice, undefined, injectedProvider, buidlMode);
 
   // Faucet Tx can be used to send funds from the faucet
   const faucetTx = Transactor(localProvider, gasPrice);
@@ -1022,14 +1022,14 @@ function App(props) {
               let value;
               try {
                 console.log("PARSE ETHER", amount);
-                value = parseEther("" + amount);
+                value =  !buidlMode ? parseEther("" + amount) : amount;
                 console.log("PARSEDVALUE", value);
               } catch (e) {
                 const floatVal = parseFloat(amount).toFixed(8);
 
                 console.log("floatVal", floatVal);
                 // failed to parseEther, try something else
-                value = parseEther("" + floatVal);
+                value = !buidlMode ? parseEther("" + floatVal) : amount;
                 console.log("PARSEDfloatVALUE", value);
               }
 
@@ -1193,6 +1193,7 @@ function App(props) {
           address={address}
           chainId={targetNetwork.chainId}
           blockExplorer={blockExplorer}
+          buidlMode={buidlMode}
         />
       </div>
 

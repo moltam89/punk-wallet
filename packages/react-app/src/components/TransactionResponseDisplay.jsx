@@ -164,7 +164,7 @@ export default function TransactionResponseDisplay({transactionResponse, transac
 
   return  (
     <div style={{ padding: 16 }}>
-      {(transactionResponse.hash && (transactionResponse.nonce || transactionResponse?.nonce == 0)) && <a style={{ color:'rgb(24, 144, 255)' }} href={blockExplorer + "tx/" + transactionResponse.hash}>{transactionResponse.nonce}</a>}
+      {(transactionResponse.hash && (transactionResponse.nonce || transactionResponse?.nonce == 0)) && <a style={{ color:'rgb(24, 144, 255)' }} href={blockExplorer + "tx/" + transactionResponse.hash}>{transactionResponse.buidlMode ? "View in explorer" : transactionResponse.nonce}</a>}
       {!isCancelTransaction(transactionResponse) ?
         <>
           <div style={{ position:"relative",left:-120, top:-30 }}>
@@ -174,7 +174,7 @@ export default function TransactionResponseDisplay({transactionResponse, transac
         
 
         
-        {(transactionResponse.value) && <p><b>Value:</b> {ethers.utils.formatEther(BigNumber.from(transactionResponse.value).toString())} Ξ</p>}
+        {(transactionResponse.value) && <p><b>{transactionResponse.buidlMode? "" : "Value:"}</b> {transactionResponse.buidlMode ? (Number(transactionResponse.value)/100).toFixed(2) : ethers.utils.formatEther(BigNumber.from(transactionResponse.value).toString())} {transactionResponse.buidlMode? "BUIDL sent" : "Ξ"}</p>}
         
         </>
 
