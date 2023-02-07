@@ -44,6 +44,10 @@ export default function TransactionResponses({provider, signer, injectedProvider
   }
 
   useEffect(() => {
+    if (!address) {
+      return;
+    }
+
     initTransactionResponsesArray();
 
     // Listen for storage change events from the same and from other windows as well

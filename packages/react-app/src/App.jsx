@@ -221,7 +221,7 @@ function App(props) {
   // For more hooks, check out 🔗eth-hooks at: https://www.npmjs.com/package/eth-hooks
 
   // The transactor wraps transactions and provides notificiations
-  const tx = Transactor(userProvider, gasPrice, undefined, injectedProvider, buidlMode);
+  const tx = Transactor(userProvider, gasPrice, undefined, injectedProvider, buidlMode, address);
 
   // Faucet Tx can be used to send funds from the faucet
   const faucetTx = Transactor(localProvider, gasPrice);
@@ -305,6 +305,10 @@ function App(props) {
     connector.on("call_request", async (error, payload) => {
       if (error) {
         throw error;
+      }
+
+      if (payload?.result) {
+        return;
       }
 
       console.log("REQUEST PERMISSION TO:", payload, payload.params[0]);
@@ -1186,7 +1190,7 @@ function App(props) {
 */}
 
       <div style={{ padding: 16, backgroundColor: "#FFFFFF", width: 420, margin: "auto" }}>
-        <TransactionResponses
+        {<TransactionResponses
           provider={userProvider}
           signer={userProvider.getSigner()}
           injectedProvider={injectedProvider}
@@ -1194,7 +1198,7 @@ function App(props) {
           chainId={targetNetwork.chainId}
           blockExplorer={blockExplorer}
           buidlMode={buidlMode}
-        />
+        />}
       </div>
 
       <div style={{ zIndex: -1, paddingTop: 20, opacity: 0.5, fontSize: 12 }}>

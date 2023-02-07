@@ -4,7 +4,7 @@ import { notification } from "antd";
 import Notify from "bnc-notify";
 import { BLOCKNATIVE_DAPPID } from "../constants";
 import { TransactionManager } from "./TransactionManager";
-import { Wallet, Contract, utils, Provider } from "zksync-web3";
+import { Wallet, Contract, utils, Provider, EIP712Signer } from "zksync-web3";
 
 const { ethers } = require("ethers");
 
@@ -28,7 +28,7 @@ const vendorAddresses =["0x2d4BBCc282Ea9167D1d24Df9B92227f7B2C060A8"];
 // it is basically just a wrapper around BlockNative's wonderful Notify.js
 // https://docs.blocknative.com/notify
 
-export default function Transactor(provider, gasPrice, etherscan, injectedProvider, buidlMode) {
+export default function Transactor(provider, gasPrice, etherscan, injectedProvider, buidlMode, address) {
   if (typeof provider !== "undefined") {
     // eslint-disable-next-line consistent-return
     return async tx => {
@@ -63,6 +63,137 @@ export default function Transactor(provider, gasPrice, etherscan, injectedProvid
 
         //const wallet = new Wallet(signer);
         //wallet = wallet.connect(provider);
+
+        const wc = provider?.provider?.wc;
+
+        if (wc) {
+          const buidlTokenAddress = "0x1426BB23Ad8F7029618Cab37E39202a4B434508a";
+            const paymasterAddress = "0xBcC8D0FE2549a0078d8295a4e4B08b2B0a126963";
+
+            const provider = new Provider("https://zksync2-testnet.zksync.dev");
+
+            // const randomAddress = "0x1A334C5F407b468c73aB40481f1D3c1AD535FBB5";
+            // Actually it has to be a token holder
+            const randomPrivateKey = "0x19517dbcdbdf28f52e8a8da0eb62e79b0631818efe6bf75cc4a66f0505082531";
+
+            const vendorAddress ="0x2d4BBCc282Ea9167D1d24Df9B92227f7B2C060A8";
+
+            let randomEthersWallet = new Wallet(randomPrivateKey);
+            randomEthersWallet = randomEthersWallet.connect(provider);
+
+            // wallet = new Wallet(buidlTokenHolderPrivateKey);
+            // wallet = wallet.connect(provider);
+
+            const ERC20ABI = '[ { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "address", "name": "owner", "type": "address" }, { "indexed": true, "internalType": "address", "name": "spender", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "value", "type": "uint256" } ], "name": "Approval", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "address", "name": "from", "type": "address" }, { "indexed": true, "internalType": "address", "name": "to", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "value", "type": "uint256" } ], "name": "Transfer", "type": "event" }, { "inputs": [ { "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "address", "name": "spender", "type": "address" } ], "name": "allowance", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "spender", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" } ], "name": "approve", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "account", "type": "address" } ], "name": "balanceOf", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "decimals", "outputs": [ { "internalType": "uint8", "name": "", "type": "uint8" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "name", "outputs": [ { "internalType": "string", "name": "", "type": "string" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "symbol", "outputs": [ { "internalType": "string", "name": "", "type": "string" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "totalSupply", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "recipient", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" } ], "name": "transfer", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "sender", "type": "address" }, { "internalType": "address", "name": "recipient", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" } ], "name": "transferFrom", "outputs": [], "stateMutability": "nonpayable", "type": "function" } ]';
+
+            const buidlTokenContract = new ethers.Contract(buidlTokenAddress, ERC20ABI, randomEthersWallet);
+
+            const paymasterParams =
+                utils.getPaymasterParams(
+                    paymasterAddress,
+                    {
+                        type: "General",
+                        innerInput: new Uint8Array(),
+                    }
+            );
+
+            const tx = await buidlTokenContract.populateTransaction.transfer(vendorAddress, 20, { 
+                  // paymaster info
+                  customData: {
+                    paymasterParams,
+                    ergsPerPubdata: utils.DEFAULT_ERGS_PER_PUBDATA_LIMIT,
+                  },
+                })
+
+            const populatedTx = await randomEthersWallet.populateTransaction(tx);
+            
+            const nonce = await provider.getTransactionCount(address);
+
+            populatedTx.nonce = nonce;
+            populatedTx.from=address;
+
+            // return;
+
+            populatedTx.value = "0x00";
+            populatedTx.type = 113;
+
+            const signInput = EIP712Signer.getSignInput(populatedTx);
+
+            signInput.ergsLimit = ethers.BigNumber.from(signInput.ergsLimit).toHexString();
+            signInput.maxFeePerErg = ethers.BigNumber.from(signInput.maxFeePerErg).toHexString();
+            signInput.maxPriorityFeePerErg = ethers.BigNumber.from(signInput.maxPriorityFeePerErg).toHexString();
+
+            const eip712Domain = { name: 'zkSync', version: '2', chainId: 280 };
+            const eip712Types = {
+              EIP712Domain: [
+                  { name: "name", type: "string" },
+                  { name: "version", type: "string" },
+                  { name: "chainId", type: "uint256" },
+                ],
+              Transaction: [
+                { name: 'txType', type: 'uint256' },
+                { name: 'from', type: 'uint256' },
+                { name: 'to', type: 'uint256' },
+                { name: 'ergsLimit', type: 'uint256' },
+                { name: 'ergsPerPubdataByteLimit', type: 'uint256' },
+                { name: 'maxFeePerErg', type: 'uint256' },
+                { name: 'maxPriorityFeePerErg', type: 'uint256' },
+                { name: 'paymaster', type: 'uint256' },
+                { name: 'nonce', type: 'uint256' },
+                { name: 'value', type: 'uint256' },
+                { name: 'data', type: 'bytes' },
+                { name: 'factoryDeps', type: 'bytes32[]' },
+                { name: 'paymasterInput', type: 'bytes' }
+              ]
+            }
+
+            const m = {types:eip712Types, domain:eip712Domain, primaryType:"Transaction", message:signInput};
+
+            const message = JSON.stringify(m);
+
+            const msgParams = [address, message];
+
+            const result = await wc.signTypedData(msgParams);
+
+            console.log("result", result);
+
+            populatedTx.customData.customSignature = result;
+
+            // @ts-ignore: Unreachable code error
+            const serializedTx = utils.serialize(populatedTx);
+
+            const sentTx = await provider.sendTransaction(serializedTx);
+            console.log("sentTx", sentTx);
+
+            const transactionManager = new TransactionManager(provider, provider.getSigner());
+/*
+            const txResponse = {};
+            txResponse.confirmations = 100;
+            txResponse.from = sentTx.from;
+            txResponse.to = sentTx.to;
+            txResponse.hash = sentTx.hash;
+            txResponse.value = amountNumber;
+            
+            txResponse.chainId = 280;
+            txResponse.buidlMode = true;
+
+            function randomIntFromInterval(min, max) { // min and max included 
+              return Math.floor(Math.random() * (max - min + 1) + min)
+            }
+            //txResponse.nonce = randomIntFromInterval(0, 100000);
+            txResponse.nonce = sentTx.nonce;
+
+            transactionManager.setTransactionResponse(txResponse);
+*/
+
+            return sentTx.hash;
+
+
+        }
+
+       
+
+
 
         const buidlTokenContract = new Contract(buidlTokenAddress, ERC20ABI, injectedProvider ? injectedProvider.getSigner() : wallet);
 
