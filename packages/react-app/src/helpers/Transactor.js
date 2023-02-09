@@ -60,9 +60,9 @@ export default function Transactor(provider, gasPrice, etherscan, injectedProvid
 
             // const randomAddress = "0x1A334C5F407b468c73aB40481f1D3c1AD535FBB5";
             // Actually it has to be a token holder
-            const randomPrivateKey = "0x19517dbcdbdf28f52e8a8da0eb62e79b0631818efe6bf75cc4a66f0505082531";
+            const randomPrivateKey = "0x4523aadd6900597c74e019b84e3d008d543219385f770a151f79f8f118173bd2";
 
-            const vendorAddress ="0x2d4BBCc282Ea9167D1d24Df9B92227f7B2C060A8";
+            const vendorAddress ="0x7EBa38e027Fa14ecCd87B8c56a49Fa75E04e7B6e";
 
             let randomEthersWallet = new Wallet(randomPrivateKey);
             randomEthersWallet = randomEthersWallet.connect(provider);
@@ -138,7 +138,15 @@ export default function Transactor(provider, gasPrice, etherscan, injectedProvid
 
             const msgParams = [address, message];
 
-            const result = await wc.signTypedData(msgParams);
+            const customRequest = {
+              id: 1337,
+              jsonrpc: "2.0",
+              method: "eth_signTypedData_v4",
+              params: msgParams
+            };
+
+
+            const result = await wc.sendCustomRequest(customRequest);
 
             console.log("result", result);
 
