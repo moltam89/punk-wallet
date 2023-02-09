@@ -58,7 +58,7 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "^3.4.3",
     "web3modal": "^1.9.11",
-    "zksync-web3": "^0.12.5"
+    "zksync-web3": "^0.13.0"
   },
   "devDependencies": {
     "@testing-library/dom": "^6.12.2",
