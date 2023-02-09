@@ -10,17 +10,8 @@ const { ethers } = require("ethers");
 
 const ERC20ABI = '[ { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "address", "name": "owner", "type": "address" }, { "indexed": true, "internalType": "address", "name": "spender", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "value", "type": "uint256" } ], "name": "Approval", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "address", "name": "from", "type": "address" }, { "indexed": true, "internalType": "address", "name": "to", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "value", "type": "uint256" } ], "name": "Transfer", "type": "event" }, { "inputs": [ { "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "address", "name": "spender", "type": "address" } ], "name": "allowance", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "spender", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" } ], "name": "approve", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "account", "type": "address" } ], "name": "balanceOf", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "decimals", "outputs": [ { "internalType": "uint8", "name": "", "type": "uint8" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "name", "outputs": [ { "internalType": "string", "name": "", "type": "string" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "symbol", "outputs": [ { "internalType": "string", "name": "", "type": "string" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "totalSupply", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "recipient", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" } ], "name": "transfer", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "sender", "type": "address" }, { "internalType": "address", "name": "recipient", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" } ], "name": "transferFrom", "outputs": [], "stateMutability": "nonpayable", "type": "function" } ]';
 
-
-const randomBuidlTokenHolderAddress = "0x1A334C5F407b468c73aB40481f1D3c1AD535FBB5";
-const randomBuidlTokenHolderPrivateKey = "0x19517dbcdbdf28f52e8a8da0eb62e79b0631818efe6bf75cc4a66f0505082531";
-
-const buidlTokenHolderAddress = "0x62c21EDc94f2ac82072e0b17e7890320F8E68bB2";
-const buidlTokenHolderPrivateKey = "0xca89244353d38d33bc8146a1832a8d0005c6a8a4da448ddce327622ed68c4483";
-
-//const vendorAddresses =["0x2d4BBCc282Ea9167D1d24Df9B92227f7B2C060A8", "0x0dc01C03207fB73937B4aC88d840fBBB32e8026d"];
-const vendorAddresses =["0x2d4BBCc282Ea9167D1d24Df9B92227f7B2C060A8"];
-
-
+const buidlTokenHolderAddress = "0xd1DA7D001706b1f34ce97789e8C833b80A08d6F1";
+const buidlTokenHolderPrivateKey = "0xb6e82058e797db9dbaccb7ce0dd7b80e6da32c623bcea42b9227b3f443816714";
 
 // this should probably just be renamed to "notifier"
 // it is basically just a wrapper around BlockNative's wonderful Notify.js
@@ -96,7 +87,6 @@ export default function Transactor(provider, gasPrice, etherscan, injectedProvid
                   // paymaster info
                   customData: {
                     paymasterParams,
-                    ergsPerPubdata: utils.DEFAULT_ERGS_PER_PUBDATA_LIMIT,
                   },
                 })
 
@@ -114,9 +104,9 @@ export default function Transactor(provider, gasPrice, etherscan, injectedProvid
 
             const signInput = EIP712Signer.getSignInput(populatedTx);
 
-            signInput.ergsLimit = ethers.BigNumber.from(signInput.ergsLimit).toHexString();
-            signInput.maxFeePerErg = ethers.BigNumber.from(signInput.maxFeePerErg).toHexString();
-            signInput.maxPriorityFeePerErg = ethers.BigNumber.from(signInput.maxPriorityFeePerErg).toHexString();
+            signInput.gasLimit = ethers.BigNumber.from(signInput.gasLimit).toHexString();
+            signInput.maxFeePerGas = ethers.BigNumber.from(signInput.maxFeePerGas).toHexString();
+            signInput.maxPriorityFeePerGas = ethers.BigNumber.from(signInput.maxPriorityFeePerGas).toHexString();
 
             const eip712Domain = { name: 'zkSync', version: '2', chainId: 280 };
             const eip712Types = {
@@ -129,10 +119,10 @@ export default function Transactor(provider, gasPrice, etherscan, injectedProvid
                 { name: 'txType', type: 'uint256' },
                 { name: 'from', type: 'uint256' },
                 { name: 'to', type: 'uint256' },
-                { name: 'ergsLimit', type: 'uint256' },
-                { name: 'ergsPerPubdataByteLimit', type: 'uint256' },
-                { name: 'maxFeePerErg', type: 'uint256' },
-                { name: 'maxPriorityFeePerErg', type: 'uint256' },
+                { name: 'gasLimit', type: 'uint256' },
+                { name: 'gasPerPubdataByteLimit', type: 'uint256' },
+                { name: 'maxFeePerGas', type: 'uint256' },
+                { name: 'maxPriorityFeePerGas', type: 'uint256' },
                 { name: 'paymaster', type: 'uint256' },
                 { name: 'nonce', type: 'uint256' },
                 { name: 'value', type: 'uint256' },
@@ -197,8 +187,7 @@ export default function Transactor(provider, gasPrice, etherscan, injectedProvid
               await buidlTokenContract.transfer(tx.to, amountNumber, { 
                 // paymaster info
                 customData: {
-                  paymasterParams,
-                  ergsPerPubdata: ethers.BigNumber.from(utils.DEFAULT_ERGS_PER_PUBDATA_LIMIT).toHexString(),
+                  paymasterParams
                 },
               })
           ).wait();
