@@ -516,7 +516,7 @@ function App(props) {
       if (nextSession) {
         localStorage.removeItem("wallectConnectNextSession");
         console.log("FOUND A NEXT SESSION IN CACHE");
-        setWalletConnectUrl(nextSession);
+        setWalletConnectUrl(decodeURIComponent(nextSession));
       } else if (wallectConnectConnectorSession) {
         console.log("NOT CONNECTED AND wallectConnectConnectorSession", wallectConnectConnectorSession);
         connectWallet(wallectConnectConnectorSession);
@@ -957,7 +957,7 @@ function App(props) {
                 localStorage.removeItem("wallectConnectConnectorSession");
                 localStorage.setItem("wallectConnectNextSession", wcLink);
               } else {
-                setWalletConnectUrl(wcLink);
+                setWalletConnectUrl(decodeURIComponent(wcLink));
               }
             }}
           />
@@ -1233,7 +1233,7 @@ function App(props) {
           value={walletConnectUrl}
           disabled={walletConnectConnected}
           onChange={e => {
-            setWalletConnectUrl(e.target.value);
+            setWalletConnectUrl(decodeURIComponent(e.target.value));
           }}
         />
         {walletConnectConnected ? (
