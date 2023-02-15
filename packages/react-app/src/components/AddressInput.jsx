@@ -120,8 +120,10 @@ export default function AddressInput(props) {
           setScan(false);
           message.error("Camera Error: " + e.toString());
         }}
-        onScan={newValue => {
+        onResult={(newValue, error) => {
           if (newValue) {
+            newValue = newValue.text;
+
             console.log("SCAN VALUE",newValue);
 
             if(newValue && newValue.length==66 && newValue.indexOf("0x")===0){
