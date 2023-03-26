@@ -1,3 +1,6 @@
+import { Core } from "@walletconnect/core";
+import { Web3Wallet } from "@walletconnect/web3wallet";
+
 import { CaretUpOutlined, ScanOutlined, SendOutlined, ReloadOutlined } from "@ant-design/icons";
 import { JsonRpcProvider, StaticJsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 import { formatEther, parseEther } from "@ethersproject/units";
@@ -35,6 +38,7 @@ import { TransactionManager } from "./helpers/TransactionManager";
 const { confirm } = Modal;
 
 const { ethers } = require("ethers");
+
 /*
     Welcome to 🏗 scaffold-eth !
 
@@ -112,6 +116,10 @@ const web3Modal = new Web3Modal({
   },
 });
 
+const core = new Core({
+  projectId: process.env.REACT_APP_WALLET_CONNECT_PROJECT_ID,
+});
+
 function App(props) {
   //const [isWalletModalVisible, setIsWalletModalVisible] = useState(false);
   //const [walletModalData, setWalletModalData] = useState();
@@ -134,6 +142,35 @@ function App(props) {
     }
     waitForNetwork()
   },[ localProvider ])*/
+  const [web3wallet, setWeb3wallet] = useState();
+
+  useEffect(() => {
+    async function initWeb3wallet() {
+      const web3wallet = await Web3Wallet.init({
+        core, // <- pass the shared `core` instance
+        metadata: {
+          description: "Forkable web wallet for small/quick transactions.",
+          url: "https://punkwallet.io",
+          icons: ["https://punkwallet.io/punk.png"],
+          name: "🧑‍🎤 PunkWallet.io",
+        },
+      });
+
+      web3wallet.on("session_proposal", async (proposal) => {
+        console.log("proposal", proposal);
+        const session = await web3wallet.approveSession({
+          id: proposal.id,
+          namespaces,
+        });
+    });
+
+      setWeb3wallet(web3wallet);
+    }
+
+    initWeb3wallet()
+  }, [])
+
+  console.log("web3wallet", web3wallet);
 
   const [checkingBalances, setCheckingBalances] = useState();
   // a function to check your balance on every network and switch networks if found...
