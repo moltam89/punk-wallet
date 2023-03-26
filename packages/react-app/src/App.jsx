@@ -30,7 +30,13 @@ import { useBalance, useExchangePrice, useGasPrice, useLocalStorage, usePoller, 
 
 import WalletConnect from "@walletconnect/client";
 
+// Wallet Connect V2 imports
+import { Core } from "@walletconnect/core";
+import { Web3Wallet } from "@walletconnect/web3wallet";
+
 import { TransactionManager } from "./helpers/TransactionManager";
+import { getWalletConnectV2ActiveSession, isWalletConnectV2Connected, disconnectWallectConnectV2Sessions } from "./helpers/WalletConnectV2Helper";
+
 
 const { confirm } = Modal;
 
@@ -203,6 +209,86 @@ function App(props) {
   const userProvider = useUserProvider(injectedProvider, localProvider);
   const address = useUserAddress(userProvider);
 
+
+  // Wallet Connect V2 initialization and listeners
+  const [web3wallet, setWeb3wallet] = useState();
+  useEffect(() => {
+    if (!address) {
+      return;
+    }
+
+    async function initWeb3wallet() {
+      const core = new Core({
+        logger: 'debug',
+        projectId: process.env.REACT_APP_WALLET_CONNECT_PROJECT_ID,
+      });
+
+      const web3wallet = await Web3Wallet.init({
+        core, // <- pass the shared `core` instance
+        metadata: {
+          description: "Forkable web wallet for small/quick transactions.",
+          url: "https://punkwallet.io",
+          icons: ["https://punkwallet.io/punk.png"],
+          name: "🧑‍🎤 PunkWallet.io",
+        },
+      });
+
+      web3wallet.on("session_proposal", async (proposal) => {
+        console.log("proposal", proposal);
+
+        const { id, params } = proposal;
+        const { proposer, requiredNamespaces, relays } = params;
+
+        const namespaces = {}
+        Object.keys(requiredNamespaces).forEach(key => {
+          const accounts = []
+          requiredNamespaces[key].chains.map(chain => {
+            [address].map((acc) => accounts.push(`${chain}:${acc}`));
+          })
+          namespaces[key] = {
+            accounts,
+            methods: requiredNamespaces[key].methods,
+            events: requiredNamespaces[key].events
+          }
+        })
+
+        await web3wallet.approveSession({
+          id,
+          relayProtocol: relays[0].protocol,
+          namespaces
+        })
+
+        setWeb3wallet();
+        setWeb3wallet(web3wallet);
+      });
+
+      web3wallet.on("session_delete", async (event) => {
+        console.log("event", event);
+
+        setWalletConnectConnected(false);
+        setWalletConnectPeerMeta();
+        //setWalletConnectUrl();
+      });
+
+      setWeb3wallet(web3wallet);
+    }
+
+    initWeb3wallet()
+  }, [address]);
+
+  useEffect(() => {
+    if (!web3wallet) {
+      return;
+    }
+
+    const activeSession = getWalletConnectV2ActiveSession(web3wallet);
+    if (activeSession) {
+      setWalletConnectConnected(true);
+      setWalletConnectPeerMeta(activeSession?.peer?.metadata);
+    }
+
+  }, [web3wallet]);
+
   // You can warn the user if you would like them to be on a specific network
   // I think the naming is misleading a little bit
   // localChainId is what we can select with the chainId selector on the UI
@@ -233,7 +319,15 @@ function App(props) {
     }
   }, 7777);*/
 
-  const connectWallet = sessionDetails => {
+  const connectWallet = async sessionDetails => {
+    const uri = sessionDetails?.uri;
+
+    if (uri && uri.includes("@2")) {
+      console.log("Wallet Connect Version 2");
+      await web3wallet.core.pairing.pair({ uri })
+      return;
+    }
+
     console.log(" 📡 Connecting to Wallet Connect....", sessionDetails);
 
     let connector;
@@ -511,7 +605,7 @@ function App(props) {
   };
 
   useEffect(() => {
-    if (!walletConnectConnected && address) {
+    if (!walletConnectConnected && address && web3wallet) {
       let nextSession = localStorage.getItem("wallectConnectNextSession");
       if (nextSession) {
         localStorage.removeItem("wallectConnectNextSession");
@@ -521,7 +615,7 @@ function App(props) {
         console.log("NOT CONNECTED AND wallectConnectConnectorSession", wallectConnectConnectorSession);
         connectWallet(wallectConnectConnectorSession);
         setWalletConnectConnected(true);
-      } else if (walletConnectUrl /*&&!walletConnectUrlSaved*/) {
+      } else if (walletConnectUrl && ! isWalletConnectV2Connected(web3wallet)) {
         //CLEAR LOCAL STORAGE?!?
         console.log("clear local storage and connect...");
         localStorage.removeItem("walletconnect"); // lololol
@@ -548,7 +642,7 @@ function App(props) {
         );
       }
     }
-  }, [walletConnectUrl, address]);
+  }, [walletConnectUrl, address, web3wallet]);
 
   useMemo(() => {
     if (address && window.location.pathname) {
@@ -931,7 +1025,7 @@ function App(props) {
             hoistScanner={toggle => {
               scanner = toggle;
             }}
-            walletConnect={wcLink => {
+            walletConnect={async wcLink => {
               //if(walletConnectUrl){
               /*try{
                   //setWalletConnectConnected(false);
@@ -949,13 +1043,23 @@ function App(props) {
                 window.location.replace('/wc?uri='+wcLink);
               },500)*/
 
-              if (walletConnectUrl) {
+              if (walletConnectUrl || isWalletConnectV2Connected(web3wallet)) {
                 //existing session... need to kill it and then connect new one....
+                
                 setWalletConnectConnected(false);
+                setWalletConnectPeerMeta();
                 if (wallectConnectConnector) wallectConnectConnector.killSession();
                 localStorage.removeItem("walletConnectUrl");
                 localStorage.removeItem("wallectConnectConnectorSession");
                 localStorage.setItem("wallectConnectNextSession", wcLink);
+
+                if (isWalletConnectV2Connected(web3wallet)) {
+                  await disconnectWallectConnectV2Sessions(web3wallet);
+                  console.log("maki");
+                  setTimeout(() => {
+                    window.location.reload();
+                  }, 1);
+                }
               } else {
                 setWalletConnectUrl(wcLink);
               }
@@ -1228,9 +1332,9 @@ function App(props) {
           ""
         )}
         <Input
-          style={{ width: "40%" }}
+          style={{ width: "40%", textAlign: "center" }}
           placeholder={"wallet connect url (or use the scanner-->)"}
-          value={walletConnectUrl}
+          value={walletConnectPeerMeta?.name ? walletConnectPeerMeta.name : walletConnectUrl}
           disabled={walletConnectConnected}
           onChange={e => {
             setWalletConnectUrl(e.target.value);
@@ -1239,11 +1343,19 @@ function App(props) {
         {walletConnectConnected ? (
           <span
             style={{ cursor: "pointer", padding: 10, fontSize: 30, position: "absolute", top: -18 }}
-            onClick={() => {
-              setWalletConnectConnected(false);
+            onClick={async () => {
+              if (isWalletConnectV2Connected(web3wallet)) {
+                disconnectWallectConnectV2Sessions(web3wallet);
+                console.log("maki");
+              }
+
               if (wallectConnectConnector) wallectConnectConnector.killSession();
               localStorage.removeItem("walletConnectUrl");
               localStorage.removeItem("wallectConnectConnectorSession");
+
+              setWalletConnectConnected(false);
+              setWalletConnectPeerMeta();
+              setWalletConnectUrl();
             }}
           >
             🗑
