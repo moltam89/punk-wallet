@@ -158,10 +158,12 @@ function App(props) {
 
       web3wallet.on("session_proposal", async (proposal) => {
         console.log("proposal", proposal);
+        /*
         const session = await web3wallet.approveSession({
           id: proposal.id,
           namespaces,
         });
+        */
     });
 
       setWeb3wallet(web3wallet);
@@ -170,7 +172,7 @@ function App(props) {
     initWeb3wallet()
   }, [])
 
-  console.log("web3wallet", web3wallet);
+  //console.log("web3wallet", web3wallet);
 
   const [checkingBalances, setCheckingBalances] = useState();
   // a function to check your balance on every network and switch networks if found...
@@ -270,7 +272,17 @@ function App(props) {
     }
   }, 7777);*/
 
-  const connectWallet = sessionDetails => {
+  const connectWallet = async sessionDetails => {
+    const uri = sessionDetails.uri;
+
+    if (uri.includes("@2")) {
+      console.log("Wallet Connect Version 2");
+
+      await web3wallet.core.pairing.pair({ uri })
+      return;
+    }
+
+
     console.log(" 📡 Connecting to Wallet Connect....", sessionDetails);
 
     let connector;
