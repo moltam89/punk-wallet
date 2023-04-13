@@ -142,37 +142,6 @@ function App(props) {
     }
     waitForNetwork()
   },[ localProvider ])*/
-  const [web3wallet, setWeb3wallet] = useState();
-
-  useEffect(() => {
-    async function initWeb3wallet() {
-      const web3wallet = await Web3Wallet.init({
-        core, // <- pass the shared `core` instance
-        metadata: {
-          description: "Forkable web wallet for small/quick transactions.",
-          url: "https://punkwallet.io",
-          icons: ["https://punkwallet.io/punk.png"],
-          name: "🧑‍🎤 PunkWallet.io",
-        },
-      });
-
-      web3wallet.on("session_proposal", async (proposal) => {
-        console.log("proposal", proposal);
-        /*
-        const session = await web3wallet.approveSession({
-          id: proposal.id,
-          namespaces,
-        });
-        */
-    });
-
-      setWeb3wallet(web3wallet);
-    }
-
-    initWeb3wallet()
-  }, [])
-
-  //console.log("web3wallet", web3wallet);
 
   const [checkingBalances, setCheckingBalances] = useState();
   // a function to check your balance on every network and switch networks if found...
@@ -241,6 +210,73 @@ function App(props) {
   // Use your injected provider from 🦊 Metamask or if you don't have it then instantly generate a 🔥 burner wallet.
   const userProvider = useUserProvider(injectedProvider, localProvider);
   const address = useUserAddress(userProvider);
+
+  const [web3wallet, setWeb3wallet] = useState();
+  const [pairings, setPairings] = useState();
+
+  useEffect(() => {
+    if (!address) {
+      return;
+    }
+
+    async function initWeb3wallet() {
+      const web3wallet = await Web3Wallet.init({
+        core, // <- pass the shared `core` instance
+        metadata: {
+          description: "Forkable web wallet for small/quick transactions.",
+          url: "https://punkwallet.io",
+          icons: ["https://punkwallet.io/punk.png"],
+          name: "🧑‍🎤 PunkWallet.io",
+        },
+      });
+
+      web3wallet.on("session_proposal", async (proposal) => {
+        console.log("proposal", proposal);
+
+        const { id, params } = proposal;
+        const { proposer, requiredNamespaces, relays } = params;
+
+        const namespaces = {}
+        Object.keys(requiredNamespaces).forEach(key => {
+          const accounts = []
+          requiredNamespaces[key].chains.map(chain => {
+            [address].map((acc) => accounts.push(`${chain}:${acc}`));
+          })
+          namespaces[key] = {
+            accounts,
+            methods: requiredNamespaces[key].methods,
+            events: requiredNamespaces[key].events
+          }
+        })
+
+        await web3wallet.approveSession({
+          id,
+          relayProtocol: relays[0].protocol,
+          namespaces
+        })
+        /*
+        const session = await web3wallet.approveSession({
+          id: proposal.id,
+          namespaces,
+        });
+        */
+    });
+
+      setWeb3wallet(web3wallet);
+    }
+
+    initWeb3wallet()
+  }, [address]);
+
+  useEffect(() => {
+    if (!web3wallet) {
+      return;
+    }
+
+    setPairings(web3wallet.engine.signClient.core.pairing.pairings.values);
+  }, [web3wallet]);
+
+  console.log("pairings", pairings);
 
   // You can warn the user if you would like them to be on a specific network
   // I think the naming is misleading a little bit
