@@ -254,12 +254,6 @@ function App(props) {
           relayProtocol: relays[0].protocol,
           namespaces
         })
-        /*
-        const session = await web3wallet.approveSession({
-          id: proposal.id,
-          namespaces,
-        });
-        */
     });
 
       setWeb3wallet(web3wallet);
@@ -274,9 +268,20 @@ function App(props) {
     }
 
     setPairings(web3wallet.engine.signClient.core.pairing.pairings.values);
+
+    const activeSession = Object.values(web3wallet.getActiveSessions())[0];
+    if (activeSession) {
+      setWalletConnectConnected(true);
+      setWalletConnectPeerMeta(activeSession.peer.metadata);
+    }
+
+    console.log("pairings", web3wallet.engine.signClient.core.pairing.pairings.values);
+    console.log("web3wallet.getActiveSessions()", web3wallet.getActiveSessions());
+    console.log("Object.values(web3wallet.getActiveSessions())[0]", Object.values(web3wallet.getActiveSessions())[0]);
+
   }, [web3wallet]);
 
-  console.log("pairings", pairings);
+  
 
   // You can warn the user if you would like them to be on a specific network
   // I think the naming is misleading a little bit
