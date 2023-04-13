@@ -319,9 +319,10 @@ function App(props) {
   }, 7777);*/
 
   const connectWallet = async sessionDetails => {
-    const uri = sessionDetails.uri;
+    console.log("sessionDetails", sessionDetails)
+    const uri = sessionDetails?.uri;
 
-    if (uri.includes("@2")) {
+    if (uri && uri.includes("@2")) {
       console.log("Wallet Connect Version 2");
 
       await web3wallet.core.pairing.pair({ uri })
