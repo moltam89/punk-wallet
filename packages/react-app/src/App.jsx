@@ -254,7 +254,14 @@ function App(props) {
           relayProtocol: relays[0].protocol,
           namespaces
         })
-    });
+      });
+
+      web3wallet.on("session_delete", (event) => {
+        console.log("event", event);
+
+        setWalletConnectConnected(false);
+        setWalletConnectPeerMeta();
+      });
 
       setWeb3wallet(web3wallet);
     }
@@ -280,8 +287,6 @@ function App(props) {
     console.log("Object.values(web3wallet.getActiveSessions())[0]", Object.values(web3wallet.getActiveSessions())[0]);
 
   }, [web3wallet]);
-
-  
 
   // You can warn the user if you would like them to be on a specific network
   // I think the naming is misleading a little bit
@@ -322,7 +327,6 @@ function App(props) {
       await web3wallet.core.pairing.pair({ uri })
       return;
     }
-
 
     console.log(" 📡 Connecting to Wallet Connect....", sessionDetails);
 
