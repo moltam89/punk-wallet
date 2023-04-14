@@ -36,6 +36,8 @@ import { Web3Wallet } from "@walletconnect/web3wallet";
 import { getSdkError } from "@walletconnect/utils";
 
 import { TransactionManager } from "./helpers/TransactionManager";
+import { getWalletConnectV2ActiveSession, isWalletConnectV2Connected } from "./helpers/WalletConnectV2Helper";
+
 
 const { confirm } = Modal;
 
@@ -282,7 +284,7 @@ function App(props) {
       return;
     }
 
-    const activeSession = Object.values(web3wallet.getActiveSessions())[0];
+    const activeSession = getWalletConnectV2ActiveSession(web3wallet);
     if (activeSession) {
       setWalletConnectConnected(true);
       setWalletConnectPeerMeta(activeSession?.peer?.metadata);
@@ -321,7 +323,8 @@ function App(props) {
   }, 7777);*/
 
   const connectWallet = async sessionDetails => {
-    if (Object.values(web3wallet.getActiveSessions())[0]) {
+    if (isWalletConnectV2Connected(web3wallet)) {
+      console.log("Wallet Connect V2 Connected")
       return;
     }
 
@@ -329,7 +332,6 @@ function App(props) {
 
     if (uri && uri.includes("@2")) {
       console.log("Wallet Connect Version 2");
-      setWalletConnectUrl();
       await web3wallet.core.pairing.pair({ uri })
       return;
     }
