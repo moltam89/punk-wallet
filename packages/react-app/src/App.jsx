@@ -33,10 +33,9 @@ import WalletConnect from "@walletconnect/client";
 // Wallet Connect V2 imports
 import { Core } from "@walletconnect/core";
 import { Web3Wallet } from "@walletconnect/web3wallet";
-import { getSdkError } from "@walletconnect/utils";
 
 import { TransactionManager } from "./helpers/TransactionManager";
-import { getWalletConnectV2ActiveSession, isWalletConnectV2Connected } from "./helpers/WalletConnectV2Helper";
+import { getWalletConnectV2ActiveSession, isWalletConnectV2Connected, disconnectWallectConnectV2Sessions } from "./helpers/WalletConnectV2Helper";
 
 
 const { confirm } = Modal;
@@ -263,14 +262,11 @@ function App(props) {
         setWeb3wallet(web3wallet);
       });
 
-      web3wallet.on("session_delete", (event) => {
+      web3wallet.on("session_delete", async (event) => {
         console.log("event", event);
 
         setWalletConnectConnected(false);
         setWalletConnectPeerMeta();
-
-        setWeb3wallet();
-        setWeb3wallet(web3wallet);
       });
 
       setWeb3wallet(web3wallet);
@@ -323,11 +319,6 @@ function App(props) {
   }, 7777);*/
 
   const connectWallet = async sessionDetails => {
-    if (isWalletConnectV2Connected(web3wallet)) {
-      console.log("Wallet Connect V2 Connected")
-      return;
-    }
-
     const uri = sessionDetails?.uri;
 
     if (uri && uri.includes("@2")) {
@@ -623,7 +614,7 @@ function App(props) {
         console.log("NOT CONNECTED AND wallectConnectConnectorSession", wallectConnectConnectorSession);
         connectWallet(wallectConnectConnectorSession);
         setWalletConnectConnected(true);
-      } else if (walletConnectUrl /*&&!walletConnectUrlSaved*/) {
+      } else if (walletConnectUrl && ! isWalletConnectV2Connected(web3wallet)) {
         //CLEAR LOCAL STORAGE?!?
         console.log("clear local storage and connect...");
         localStorage.removeItem("walletconnect"); // lololol
@@ -1341,29 +1332,17 @@ function App(props) {
         {walletConnectConnected ? (
           <span
             style={{ cursor: "pointer", padding: 10, fontSize: 30, position: "absolute", top: -18 }}
-            onClick={() => {
-              setWalletConnectConnected(false);
-              setWalletConnectPeerMeta();
+            onClick={async () => {
+              if (isWalletConnectV2Connected(web3wallet)) {
+                await disconnectWallectConnectV2Sessions(web3wallet);
+              }
+
               if (wallectConnectConnector) wallectConnectConnector.killSession();
               localStorage.removeItem("walletConnectUrl");
               localStorage.removeItem("wallectConnectConnectorSession");
-              Object.keys(web3wallet.getActiveSessions())
-                .forEach(
-                  async (topic) => {
-                      console.log(topic);
-                      console.log("Disconnecting from session ", topic);
-                      await web3wallet.disconnectSession({ topic, reason: getSdkError('USER_DISCONNECTED') })
-                });
 
-              /*
-              web3wallet.engine.signClient.core.pairing.pairings.values
-                .forEach(
-                  async (pairing) => {
-                      const topic = pairing.topic;
-                      console.log("Disconnecting from pair ", topic);
-                      await web3wallet.disconnectSession({ topic, reason: getSdkError('USER_DISCONNECTED') })
-                });
-              */
+              setWalletConnectConnected(false);
+              setWalletConnectPeerMeta();
             }}
           >
             🗑
