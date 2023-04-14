@@ -1,6 +1,3 @@
-import { Core } from "@walletconnect/core";
-import { Web3Wallet } from "@walletconnect/web3wallet";
-
 import { CaretUpOutlined, ScanOutlined, SendOutlined, ReloadOutlined } from "@ant-design/icons";
 import { JsonRpcProvider, StaticJsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 import { formatEther, parseEther } from "@ethersproject/units";
@@ -33,12 +30,16 @@ import { useBalance, useExchangePrice, useGasPrice, useLocalStorage, usePoller, 
 
 import WalletConnect from "@walletconnect/client";
 
+// Wallet Connect V2 imports
+import { Core } from "@walletconnect/core";
+import { Web3Wallet } from "@walletconnect/web3wallet";
+import { getSdkError } from "@walletconnect/utils";
+
 import { TransactionManager } from "./helpers/TransactionManager";
 
 const { confirm } = Modal;
 
 const { ethers } = require("ethers");
-
 /*
     Welcome to 🏗 scaffold-eth !
 
@@ -114,10 +115,6 @@ const web3Modal = new Web3Modal({
       },
     },
   },
-});
-
-const core = new Core({
-  projectId: process.env.REACT_APP_WALLET_CONNECT_PROJECT_ID,
 });
 
 function App(props) {
@@ -211,15 +208,20 @@ function App(props) {
   const userProvider = useUserProvider(injectedProvider, localProvider);
   const address = useUserAddress(userProvider);
 
-  const [web3wallet, setWeb3wallet] = useState();
-  const [pairings, setPairings] = useState();
 
+  // Wallet Connect V2 initialization and listeners
+  const [web3wallet, setWeb3wallet] = useState();
   useEffect(() => {
     if (!address) {
       return;
     }
 
     async function initWeb3wallet() {
+      const core = new Core({
+        logger: 'debug',
+        projectId: process.env.REACT_APP_WALLET_CONNECT_PROJECT_ID,
+      });
+
       const web3wallet = await Web3Wallet.init({
         core, // <- pass the shared `core` instance
         metadata: {
@@ -254,6 +256,9 @@ function App(props) {
           relayProtocol: relays[0].protocol,
           namespaces
         })
+
+        setWeb3wallet();
+        setWeb3wallet(web3wallet);
       });
 
       web3wallet.on("session_delete", (event) => {
@@ -261,6 +266,9 @@ function App(props) {
 
         setWalletConnectConnected(false);
         setWalletConnectPeerMeta();
+
+        setWeb3wallet();
+        setWeb3wallet(web3wallet);
       });
 
       setWeb3wallet(web3wallet);
@@ -274,17 +282,11 @@ function App(props) {
       return;
     }
 
-    setPairings(web3wallet.engine.signClient.core.pairing.pairings.values);
-
     const activeSession = Object.values(web3wallet.getActiveSessions())[0];
     if (activeSession) {
       setWalletConnectConnected(true);
-      setWalletConnectPeerMeta(activeSession.peer.metadata);
+      setWalletConnectPeerMeta(activeSession?.peer?.metadata);
     }
-
-    console.log("pairings", web3wallet.engine.signClient.core.pairing.pairings.values);
-    console.log("web3wallet.getActiveSessions()", web3wallet.getActiveSessions());
-    console.log("Object.values(web3wallet.getActiveSessions())[0]", Object.values(web3wallet.getActiveSessions())[0]);
 
   }, [web3wallet]);
 
@@ -319,12 +321,15 @@ function App(props) {
   }, 7777);*/
 
   const connectWallet = async sessionDetails => {
-    console.log("sessionDetails", sessionDetails)
+    if (Object.values(web3wallet.getActiveSessions())[0]) {
+      return;
+    }
+
     const uri = sessionDetails?.uri;
 
     if (uri && uri.includes("@2")) {
       console.log("Wallet Connect Version 2");
-
+      setWalletConnectUrl();
       await web3wallet.core.pairing.pair({ uri })
       return;
     }
@@ -606,7 +611,7 @@ function App(props) {
   };
 
   useEffect(() => {
-    if (!walletConnectConnected && address) {
+    if (!walletConnectConnected && address && web3wallet) {
       let nextSession = localStorage.getItem("wallectConnectNextSession");
       if (nextSession) {
         localStorage.removeItem("wallectConnectNextSession");
@@ -643,7 +648,7 @@ function App(props) {
         );
       }
     }
-  }, [walletConnectUrl, address]);
+  }, [walletConnectUrl, address, web3wallet]);
 
   useMemo(() => {
     if (address && window.location.pathname) {
@@ -1323,9 +1328,9 @@ function App(props) {
           ""
         )}
         <Input
-          style={{ width: "40%" }}
+          style={{ width: "40%", textAlign: "center" }}
           placeholder={"wallet connect url (or use the scanner-->)"}
-          value={walletConnectUrl}
+          value={walletConnectPeerMeta?.name ? walletConnectPeerMeta.name : walletConnectUrl}
           disabled={walletConnectConnected}
           onChange={e => {
             setWalletConnectUrl(e.target.value);
@@ -1336,9 +1341,27 @@ function App(props) {
             style={{ cursor: "pointer", padding: 10, fontSize: 30, position: "absolute", top: -18 }}
             onClick={() => {
               setWalletConnectConnected(false);
+              setWalletConnectPeerMeta();
               if (wallectConnectConnector) wallectConnectConnector.killSession();
               localStorage.removeItem("walletConnectUrl");
               localStorage.removeItem("wallectConnectConnectorSession");
+              Object.keys(web3wallet.getActiveSessions())
+                .forEach(
+                  async (topic) => {
+                      console.log(topic);
+                      console.log("Disconnecting from session ", topic);
+                      await web3wallet.disconnectSession({ topic, reason: getSdkError('USER_DISCONNECTED') })
+                });
+
+              /*
+              web3wallet.engine.signClient.core.pairing.pairings.values
+                .forEach(
+                  async (pairing) => {
+                      const topic = pairing.topic;
+                      console.log("Disconnecting from pair ", topic);
+                      await web3wallet.disconnectSession({ topic, reason: getSdkError('USER_DISCONNECTED') })
+                });
+              */
             }}
           >
             🗑
