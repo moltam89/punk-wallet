@@ -302,7 +302,7 @@ export const NETWORKS = {
     color: "#ceb0fa",
     chainId: 1,
     price: "uniswap",
-    rpcUrl: `https://rpc2.scaffoldeth.io:48544`,
+    rpcUrl: `https://eth-mainnet.g.alchemy.com/v2/KZN7Qk0fGIu8PPvNx0ulFuhfSw4akq_6`,
     blockExplorer: "https://etherscan.io/",
   },
   buidlguidl: {
