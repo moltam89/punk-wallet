@@ -14,10 +14,10 @@ export const isWalletConnectV2Connected = (web3wallet) => {
 
 
 export const disconnectWallectConnectV2Sessions = async (web3wallet) => {
+	console.log("Disconnecting from Wallet Connect 2 session");
 
 	// Wallet Connect V2 has a lot more options than V1, we could have multiple sessions and pairings
 	// But for now let's use only one session and disconnect from all sessions (there should be only one though right now)
-
 
 	Object.keys(web3wallet.getActiveSessions())
 		.forEach(

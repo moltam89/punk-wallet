@@ -615,7 +615,7 @@ function App(props) {
         console.log("NOT CONNECTED AND wallectConnectConnectorSession", wallectConnectConnectorSession);
         connectWallet(wallectConnectConnectorSession);
         setWalletConnectConnected(true);
-      } else if (walletConnectUrl && ! isWalletConnectV2Connected(web3wallet)) {
+      } else if (walletConnectUrl && !isWalletConnectV2Connected(web3wallet)) {
         //CLEAR LOCAL STORAGE?!?
         console.log("clear local storage and connect...");
         localStorage.removeItem("walletconnect"); // lololol
@@ -1043,7 +1043,7 @@ function App(props) {
                 window.location.replace('/wc?uri='+wcLink);
               },500)*/
 
-              if (walletConnectUrl || isWalletConnectV2Connected(web3wallet)) {
+              if (walletConnectConnected) {
                 //existing session... need to kill it and then connect new one....
                 
                 setWalletConnectConnected(false);
@@ -1055,7 +1055,6 @@ function App(props) {
 
                 if (isWalletConnectV2Connected(web3wallet)) {
                   await disconnectWallectConnectV2Sessions(web3wallet);
-                  console.log("maki");
                   setTimeout(() => {
                     window.location.reload();
                   }, 1);
@@ -1345,8 +1344,7 @@ function App(props) {
             style={{ cursor: "pointer", padding: 10, fontSize: 30, position: "absolute", top: -18 }}
             onClick={async () => {
               if (isWalletConnectV2Connected(web3wallet)) {
-                disconnectWallectConnectV2Sessions(web3wallet);
-                console.log("maki");
+                await disconnectWallectConnectV2Sessions(web3wallet);
               }
 
               if (wallectConnectConnector) wallectConnectConnector.killSession();
@@ -1355,7 +1353,6 @@ function App(props) {
 
               setWalletConnectConnected(false);
               setWalletConnectPeerMeta();
-              setWalletConnectUrl();
             }}
           >
             🗑
