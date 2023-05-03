@@ -209,88 +209,6 @@ function App(props) {
   const userProvider = useUserProvider(injectedProvider, localProvider);
   const address = useUserAddress(userProvider);
 
-
-  // Wallet Connect V2 initialization and listeners
-  const [web3wallet, setWeb3wallet] = useState();
-  useEffect(() => {
-    if (!address) {
-      return;
-    }
-
-    async function initWeb3wallet() {
-      const core = new Core({
-        logger: 'debug',
-        projectId: process.env.REACT_APP_WALLET_CONNECT_PROJECT_ID,
-      });
-
-      const web3wallet = await Web3Wallet.init({
-        core, // <- pass the shared `core` instance
-        metadata: {
-          description: "Forkable web wallet for small/quick transactions.",
-          url: "https://punkwallet.io",
-          icons: ["https://punkwallet.io/punk.png"],
-          name: "🧑‍🎤 PunkWallet.io",
-        },
-      });
-
-      web3wallet.on("session_proposal", async (proposal) => {
-        console.log("proposal", proposal);
-
-        const { id, params } = proposal;
-        const { proposer, requiredNamespaces, relays } = params;
-
-        const namespaces = {}
-        Object.keys(requiredNamespaces).forEach(key => {
-          const accounts = []
-          requiredNamespaces[key].chains.map(chain => {
-            [address].map((acc) => accounts.push(`${chain}:${acc}`));
-          })
-          namespaces[key] = {
-            accounts,
-            methods: requiredNamespaces[key].methods,
-            events: requiredNamespaces[key].events
-          }
-        })
-
-        await web3wallet.approveSession({
-          id,
-          relayProtocol: relays[0].protocol,
-          namespaces
-        })
-
-        setWeb3wallet();
-        setWeb3wallet(web3wallet);
-      });
-
-      web3wallet.on("session_delete", async (event) => {
-        console.log("event", event);
-        localStorage.removeItem("walletConnectUrl");
-        setWalletConnectUrl("");
-
-        setWalletConnectConnected(false);
-        setWalletConnectPeerMeta();
-        
-      });
-
-      setWeb3wallet(web3wallet);
-    }
-
-    initWeb3wallet()
-  }, [address]);
-
-  useEffect(() => {
-    if (!web3wallet) {
-      return;
-    }
-
-    const activeSession = getWalletConnectV2ActiveSession(web3wallet);
-    if (activeSession) {
-      setWalletConnectConnected(true);
-      setWalletConnectPeerMeta(activeSession?.peer?.metadata);
-    }
-
-  }, [web3wallet]);
-
   // You can warn the user if you would like them to be on a specific network
   // I think the naming is misleading a little bit
   // localChainId is what we can select with the chainId selector on the UI
@@ -587,6 +505,87 @@ function App(props) {
   const [wallectConnectConnectorSession, setWallectConnectConnectorSession] = useLocalStorage(
     "wallectConnectConnectorSession",
   );
+
+  // Wallet Connect V2 initialization and listeners
+  const [web3wallet, setWeb3wallet] = useState();
+  useEffect(() => {
+    if (!address) {
+      return;
+    }
+
+    async function initWeb3wallet() {
+      const core = new Core({
+        logger: 'debug',
+        projectId: process.env.REACT_APP_WALLET_CONNECT_PROJECT_ID,
+      });
+
+      const web3wallet = await Web3Wallet.init({
+        core, // <- pass the shared `core` instance
+        metadata: {
+          description: "Forkable web wallet for small/quick transactions.",
+          url: "https://punkwallet.io",
+          icons: ["https://punkwallet.io/punk.png"],
+          name: "🧑‍🎤 PunkWallet.io",
+        },
+      });
+
+      web3wallet.on("session_proposal", async (proposal) => {
+        console.log("proposal", proposal);
+
+        if (walletConnectConnected) {
+          await disconnectFromWalletConnect(wallectConnectConnector, web3wallet);
+        }
+
+        const { id, params } = proposal;
+        const { proposer, requiredNamespaces, relays } = params;
+
+        const namespaces = {}
+        Object.keys(requiredNamespaces).forEach(key => {
+          const accounts = []
+          requiredNamespaces[key].chains.map(chain => {
+            [address].map((acc) => accounts.push(`${chain}:${acc}`));
+          })
+          namespaces[key] = {
+            accounts,
+            methods: requiredNamespaces[key].methods,
+            events: requiredNamespaces[key].events
+          }
+        })
+
+        await web3wallet.approveSession({
+          id,
+          relayProtocol: relays[0].protocol,
+          namespaces
+        })
+
+        setWeb3wallet();
+        setWeb3wallet(web3wallet);
+      });
+
+      web3wallet.on("session_delete", async (event) => {
+        console.log("session_delete event", event);
+
+        await disconnectFromWalletConnect(undefined, web3wallet);
+      });
+
+      setWeb3wallet(web3wallet);
+    }
+
+    initWeb3wallet();
+  }, [address, wallectConnectConnector, walletConnectConnected]);
+
+  useEffect(() => {
+    if (!web3wallet) {
+      return;
+    }
+
+    const activeSession = getWalletConnectV2ActiveSession(web3wallet);
+    if (activeSession) {
+      setWalletConnectConnected(true);
+      setWalletConnectPeerMeta(activeSession?.peer?.metadata);
+    }
+
+  }, [web3wallet]);
 
   useEffect(() => {
     if (wallectConnectConnector && wallectConnectConnector.connected && address && localChainId) {
