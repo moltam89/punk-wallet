@@ -562,10 +562,18 @@ function App(props) {
         setWeb3wallet(web3wallet);
       });
 
+      web3wallet.on("session_request", async (event) => {
+        console.log("session_request event", event);
+      });
+
       web3wallet.on("session_delete", async (event) => {
         console.log("session_delete event", event);
 
         await disconnectFromWalletConnect(undefined, web3wallet);
+      });
+
+      web3wallet.on("session_event", async (event) => {
+        console.log("session_event event", event);
       });
 
       setWeb3wallet(web3wallet);
