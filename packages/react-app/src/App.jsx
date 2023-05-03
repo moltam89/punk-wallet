@@ -264,10 +264,12 @@ function App(props) {
 
       web3wallet.on("session_delete", async (event) => {
         console.log("event", event);
+        localStorage.removeItem("walletConnectUrl");
+        setWalletConnectUrl("");
 
         setWalletConnectConnected(false);
         setWalletConnectPeerMeta();
-        //setWalletConnectUrl();
+        
       });
 
       setWeb3wallet(web3wallet);
@@ -1045,20 +1047,18 @@ function App(props) {
 
               if (walletConnectConnected) {
                 //existing session... need to kill it and then connect new one....
+                if (isWalletConnectV2Connected(web3wallet)) {
+                  await disconnectWallectConnectV2Sessions(web3wallet);
+                }
                 
                 setWalletConnectConnected(false);
                 setWalletConnectPeerMeta();
-                if (wallectConnectConnector) wallectConnectConnector.killSession();
+                setWalletConnectUrl("");
                 localStorage.removeItem("walletConnectUrl");
                 localStorage.removeItem("wallectConnectConnectorSession");
                 localStorage.setItem("wallectConnectNextSession", wcLink);
 
-                if (isWalletConnectV2Connected(web3wallet)) {
-                  await disconnectWallectConnectV2Sessions(web3wallet);
-                  setTimeout(() => {
-                    window.location.reload();
-                  }, 1);
-                }
+                if (wallectConnectConnector) wallectConnectConnector.killSession();                
               } else {
                 setWalletConnectUrl(wcLink);
               }
@@ -1353,6 +1353,7 @@ function App(props) {
 
               setWalletConnectConnected(false);
               setWalletConnectPeerMeta();
+              setWalletConnectUrl("");
             }}
           >
             🗑
