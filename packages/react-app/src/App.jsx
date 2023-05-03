@@ -1054,11 +1054,10 @@ function App(props) {
                 setWalletConnectConnected(false);
                 setWalletConnectPeerMeta();
                 setWalletConnectUrl("");
+                if (wallectConnectConnector) wallectConnectConnector.killSession();                
                 localStorage.removeItem("walletConnectUrl");
                 localStorage.removeItem("wallectConnectConnectorSession");
                 localStorage.setItem("wallectConnectNextSession", wcLink);
-
-                if (wallectConnectConnector) wallectConnectConnector.killSession();                
               } else {
                 setWalletConnectUrl(wcLink);
               }
