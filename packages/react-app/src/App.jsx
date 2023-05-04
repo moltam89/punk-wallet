@@ -239,15 +239,7 @@ function App(props) {
     }
   }, 7777);*/
 
-  const connectWallet = async sessionDetails => {
-    const uri = sessionDetails?.uri;
-
-    if (uri && uri.includes("@2")) {
-      console.log("Wallet Connect Version 2");
-      await web3wallet.core.pairing.pair({ uri })
-      return;
-    }
-
+  const connectWallet = sessionDetails => {
     console.log(" 📡 Connecting to Wallet Connect....", sessionDetails);
 
     let connector;
@@ -633,7 +625,7 @@ function App(props) {
   };
 
   useEffect(() => {
-    if (!walletConnectConnected && address && web3wallet) {
+    if (!walletConnectConnected && address) {
       let nextSession = localStorage.getItem("wallectConnectNextSession");
       if (nextSession) {
         localStorage.removeItem("wallectConnectNextSession");
@@ -643,7 +635,12 @@ function App(props) {
         console.log("NOT CONNECTED AND wallectConnectConnectorSession", wallectConnectConnectorSession);
         connectWallet(wallectConnectConnectorSession);
         setWalletConnectConnected(true);
-      } else if (walletConnectUrl && !isWalletConnectV2Connected(web3wallet)) {
+      } else if (walletConnectUrl ) {
+        // Version 2 is handled separately
+        if (walletConnectUrl.includes("@2")) {
+          return;
+        }
+
         //CLEAR LOCAL STORAGE?!?
         console.log("clear local storage and connect...");
         localStorage.removeItem("walletconnect"); // lololol
@@ -670,7 +667,14 @@ function App(props) {
         );
       }
     }
-  }, [walletConnectUrl, address, web3wallet]);
+  }, [walletConnectUrl, address]);
+
+  useEffect(() => {
+    if (walletConnectUrl && walletConnectUrl.includes("@2")) {
+      console.log(" 📡 Connecting to Wallet Connect V2....", walletConnectUrl);
+      web3wallet.core.pairing.pair({ walletConnectUrl })
+    }
+  }, [walletConnectUrl]);
 
   useMemo(() => {
     if (address && window.location.pathname) {
