@@ -452,40 +452,34 @@ function App(props) {
       //}
     });
 
-    connector.on("disconnect", (error, payload) => {
+    connector.on("disconnect", async (error, payload) => {
       if (error) {
         throw error;
       }
-      console.log("disconnect");
 
-      localStorage.removeItem("walletConnectUrl");
-      localStorage.removeItem("wallectConnectConnectorSession");
+      console.log("walletConnectConnected", walletConnectConnected);
 
-      setTimeout(() => {
-        window.location.reload();
-      }, 1);
-
-      // Delete connector
+      if (walletConnectConnected) {
+        await disconnectFromWalletConnect(connector, undefined);  
+      }
     });
   };
 
   const disconnectFromWalletConnect = async (wallectConnectConnector, web3wallet) => {
+    setWalletConnectUrl("");
+    setWalletConnectPeerMeta();
+    setWallectConnectConnectorSession("");
+    setWallectConnectConnector();
+    setWalletConnectConnected(false);
+    
     if (wallectConnectConnector) {
-      console.log("Disconnect from Wallet Connect V1");
       await wallectConnectConnector.killSession();
     } 
 
-    if (isWalletConnectV2Connected(web3wallet)) {
+    if (web3wallet && isWalletConnectV2Connected(web3wallet)) {
       console.log("Disconnect from Wallet Connect V2");
       await disconnectWallectConnectV2Sessions(web3wallet);
     }
-    
-    setWalletConnectConnected(false);
-    setWalletConnectPeerMeta();
-    setWalletConnectUrl("");
-
-    localStorage.removeItem("walletConnectUrl");
-    localStorage.removeItem("wallectConnectConnectorSession");
   }
 
   const [walletConnectUrl, setWalletConnectUrl] = useLocalStorage("walletConnectUrl");
@@ -561,7 +555,9 @@ function App(props) {
       web3wallet.on("session_delete", async (event) => {
         console.log("session_delete event", event);
 
-        await disconnectFromWalletConnect(undefined, web3wallet);
+        if (walletConnectConnected) {
+          await disconnectFromWalletConnect(undefined, web3wallet);  
+        }
       });
 
       web3wallet.on("session_event", async (event) => {
