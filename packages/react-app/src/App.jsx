@@ -458,12 +458,7 @@ function App(props) {
       }
       console.log("disconnect");
 
-      localStorage.removeItem("walletConnectUrl");
-      localStorage.removeItem("wallectConnectConnectorSession");
-
-      setTimeout(() => {
-        window.location.reload();
-      }, 1);
+      disconnectFromWalletConnect();
 
       // Delete connector
     });
@@ -475,17 +470,16 @@ function App(props) {
       await wallectConnectConnector.killSession();
     } 
 
-    if (isWalletConnectV2Connected(web3wallet)) {
+    if (web3wallet && isWalletConnectV2Connected(web3wallet)) {
       console.log("Disconnect from Wallet Connect V2");
       await disconnectWallectConnectV2Sessions(web3wallet);
     }
     
+    setWallectConnectConnectorSession("");
+    setWalletConnectUrl("");
+    setWallectConnectConnector();
     setWalletConnectConnected(false);
     setWalletConnectPeerMeta();
-    setWalletConnectUrl("");
-
-    localStorage.removeItem("walletConnectUrl");
-    localStorage.removeItem("wallectConnectConnectorSession");
   }
 
   const [walletConnectUrl, setWalletConnectUrl] = useLocalStorage("walletConnectUrl");
