@@ -666,7 +666,13 @@ function App(props) {
   useEffect(() => {
     if (walletConnectUrl && walletConnectUrl.includes("@2")) {
       console.log(" 📡 Connecting to Wallet Connect V2....", walletConnectUrl);
-      web3wallet.core.pairing.pair({ walletConnectUrl })
+      try {
+        web3wallet.core.pairing.pair({ walletConnectUrl })  
+      }
+      catch (error) {
+        console.log("Cannot create pairing", error);
+        setWalletConnectUrl("");
+      }
     }
   }, [walletConnectUrl]);
 
@@ -1358,8 +1364,8 @@ function App(props) {
         {walletConnectConnected ? (
           <span
             style={{ cursor: "pointer", padding: 10, fontSize: 30, position: "absolute", top: -18 }}
-            onClick={async () => {
-              await disconnectFromWalletConnect(wallectConnectConnector, web3wallet);
+            onClick={() => {
+              disconnectFromWalletConnect(wallectConnectConnector, web3wallet);
             }}
           >
             🗑
