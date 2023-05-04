@@ -667,7 +667,7 @@ function App(props) {
     if (walletConnectUrl && walletConnectUrl.includes("@2")) {
       console.log(" 📡 Connecting to Wallet Connect V2....", walletConnectUrl);
       try {
-        web3wallet.core.pairing.pair({ walletConnectUrl })  
+        web3wallet.core.pairing.pair({ uri:walletConnectUrl })  
       }
       catch (error) {
         console.log("Cannot create pairing", error);
