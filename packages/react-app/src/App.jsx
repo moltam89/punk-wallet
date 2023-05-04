@@ -492,6 +492,8 @@ function App(props) {
     "wallectConnectConnectorSession",
   );
 
+
+
   // Wallet Connect V2 initialization and listeners
   const [web3wallet, setWeb3wallet] = useState();
   useEffect(() => {
@@ -664,7 +666,7 @@ function App(props) {
   }, [walletConnectUrl, address]);
 
   useEffect(() => {
-    if (walletConnectUrl && walletConnectUrl.includes("@2")) {
+    if (walletConnectUrl && walletConnectUrl.includes("@2") && web3wallet && !isWalletConnectV2Connected(web3wallet)) {
       console.log(" 📡 Connecting to Wallet Connect V2....", walletConnectUrl);
       try {
         web3wallet.core.pairing.pair({ uri:walletConnectUrl })  
@@ -674,7 +676,7 @@ function App(props) {
         setWalletConnectUrl("");
       }
     }
-  }, [walletConnectUrl]);
+  }, [walletConnectUrl, web3wallet]);
 
   useMemo(() => {
     if (address && window.location.pathname) {
