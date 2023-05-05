@@ -463,15 +463,25 @@ function App(props) {
   };
 
   const disconnectFromWalletConnect = async (wallectConnectConnector, web3wallet) => {
-    if (wallectConnectConnector) {
-      console.log("Disconnect from Wallet Connect V1");
-      await wallectConnectConnector.killSession();
-    } 
-
-    if (web3wallet && isWalletConnectV2Connected(web3wallet)) {
-      console.log("Disconnect from Wallet Connect V2");
-      await disconnectWallectConnectV2Sessions(web3wallet);
+    try {
+      if (wallectConnectConnector) {
+        console.log("Disconnect from Wallet Connect V1");
+        await wallectConnectConnector.killSession();
+      }   
     }
+    catch (error) {
+      console.error("Coudn't disconnect from Wallet Connect V1", error)
+    }
+
+    try {
+      if (web3wallet && isWalletConnectV2Connected(web3wallet)) {
+        console.log("Disconnect from Wallet Connect V2");
+        await disconnectWallectConnectV2Sessions(web3wallet);
+      }
+    }
+    catch (error) {
+      console.error("Coudn't disconnect from Wallet Connect V2", error)
+    }    
     
     setWallectConnectConnectorSession("");
     setWalletConnectUrl("");
