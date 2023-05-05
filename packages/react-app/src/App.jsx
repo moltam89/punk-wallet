@@ -477,6 +477,10 @@ function App(props) {
       if (web3wallet && isWalletConnectV2Connected(web3wallet)) {
         console.log("Disconnect from Wallet Connect V2");
         await disconnectWallectConnectV2Sessions(web3wallet);
+
+        // This is a hack to remove session manually
+        // Otherwise if an old session is stuck, we cannot delete it
+        localStorage.removeItem("wc@2:client:0.3//session");
       }
     }
     catch (error) {
