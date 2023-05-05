@@ -582,20 +582,26 @@ function App(props) {
 
   }, [web3wallet]);
 
+  // Add an event listener to kill Wallet Connect V1 session when V2 Dapp reconnects
+  // and there was an existing V1 session
   useEffect(() => {
     if (!web3wallet || !wallectConnectConnector) {
       return;
     }
 
-    function listener() {
-      killWalletConnectV1Session(wallectConnectConnector);
+    const listener = () => {
+      if (wallectConnectConnector) {
+        console.log("Kill Wallet Connect V1 session");
+        wallectConnectConnector.killSession();
+      }
     }
 
-    console.log("Add an event listener to kill Wallet Connect V1 session");
-
     web3wallet.on("session_proposal", listener);
-    web3wallet.off("session_proposal", listener);
-  }, [wallectConnectConnector]);
+
+    return () => {
+      web3wallet.off("session_proposal", listener);      
+    }
+  }, [web3wallet, wallectConnectConnector]);
 
   useEffect(() => {
     if (wallectConnectConnector && wallectConnectConnector.connected && address && localChainId) {
