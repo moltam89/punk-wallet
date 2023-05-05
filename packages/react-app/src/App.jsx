@@ -587,9 +587,14 @@ function App(props) {
       return;
     }
 
+    const alma = "alma";
+
     console.log("Add an event listener to kill Wallet Connect V1 session");
 
-    web3wallet.on("session_proposal", () => {killWalletConnectV1Session(wallectConnectConnector)});
+    web3wallet.on("session_proposal", () => {
+      console.log("alma", alma);
+      killWalletConnectV1Session(wallectConnectConnector)
+    });
   }, [wallectConnectConnector]);
 
   useEffect(() => {
