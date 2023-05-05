@@ -1,55 +1,49 @@
-# 🏗 scaffold-eth - 🧑‍🎤 [PunkWallet.io](https://PunkWallet.io)
 
-> An open source Ethereum web wallet.
+# This is a Demo for Wallet Connect V2.
 
-🎥 [watch this 10m demo](https://youtu.be/lYRd1k1RBAQ)
+You can check this version at:
+https://parched-basketball.surge.sh/
 
----
+**This version is only about the connection, signing with V2 is not yet implemented.**
 
-> PunkWallet.io is a forkable burner wallet with Wallet Connect up front. 
+Wallet Connect V2 has a lot more options than V1, we could have multiple sessions and pairings.
+But for now let's use only one session and disconnect from the previous one.
 
-![image](https://user-images.githubusercontent.com/2653167/153722202-5368187d-4189-499e-94a3-1ee41596f445.png)
+For testing, you can use the Wallet Connect V2 official test Dapp:
+https://react-app.walletconnect.com/
+And as a reference,  here is the Wallet Connect V2 official test Wallet:
+https://react-wallet.walletconnect.com/
+
+With V2, we could connect to multiple Dapps, but I think it could make the UI confusing. So I decided to keep only 1 session at a time. I really like how the V2 Dapp can reconnect, by using the old "pairing".
+So if a Dapp is connected, and another Dapp reconnects, I simply reconnect from the old session.
+
+Use cases which worked for me:
+
+		1. Connect V1
+			Checking disconnection
+
+		2. Connect V2 new Pairing
+			Checking disconnection
+
+		3. Connect V2 with stored session
+			Checking disconnection
+
+		Checking disconnection:
+		a) Disconnect with bin icon
+		b) Refresh, disconnect with bin icon
+		c) Disconnect from Dapp
+		d) Refresh disconnect from Dapp
 
 
+	Connection while existing session:
+		1. Connect V1
+			Checking new connection
 
-> It's easy to send ETH an many different networks:
+		2. Connect V2
+			Checking new connection
 
-![image](https://user-images.githubusercontent.com/2653167/153722191-e0e99867-2724-489d-a2a6-d471a580cc24.png)
+		Checking new connection:
+		a) Connect another V1 via scanner
+		b) Connect V2 via scanner
+		c) Connect V2 via existing session
 
-
----
-
-# 🏃‍♀️ Fork the code and make your own wallet or on your own network!!!
-
-required: [Node](https://nodejs.org/dist/latest-v12.x/) plus [Yarn](https://classic.yarnpkg.com/en/docs/install/) and [Git](https://git-scm.com/downloads)
-
-
-```bash
-git clone https://github.com/scaffold-eth/punk-wallet
-
-cd punk-wallet
-```
-
-```bash
-
-yarn install
-
-```
-
-```bash
-
-yarn start
-
-```
-
-> in a second terminal window:
-
-```bash
-cd punk-wallet
-yarn chain
-
-```
-
-📝 Edit your frontend `App.jsx` in `packages/react-app/src`
-
-📱 Open http://localhost:3000 to see the app
