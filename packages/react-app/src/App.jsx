@@ -35,7 +35,7 @@ import { Core } from "@walletconnect/core";
 import { Web3Wallet } from "@walletconnect/web3wallet";
 
 import { TransactionManager } from "./helpers/TransactionManager";
-import { getWalletConnectV2ActiveSession, isWalletConnectV2Connected, disconnectWallectConnectV2Sessions } from "./helpers/WalletConnectV2Helper";
+import { getWalletConnectV2ActiveSession, isWalletConnectV2Connected, disconnectWallectConnectV2Sessions, killWalletConnectV1Session } from "./helpers/WalletConnectV2Helper";
 
 
 const { confirm } = Modal;
@@ -492,10 +492,9 @@ function App(props) {
     "wallectConnectConnectorSession",
   );
 
-
-
   // Wallet Connect V2 initialization and listeners
   const [web3wallet, setWeb3wallet] = useState();
+
   useEffect(() => {
     if (!address) {
       return;
@@ -520,8 +519,8 @@ function App(props) {
       web3wallet.on("session_proposal", async (proposal) => {
         console.log("proposal", proposal);
 
-        if (walletConnectConnected) {
-          await disconnectFromWalletConnect(wallectConnectConnector, web3wallet);
+        if (isWalletConnectV2Connected(web3wallet)) {
+          await disconnectFromWalletConnect(undefined, web3wallet);
         }
 
         const { id, params } = proposal;
@@ -568,7 +567,7 @@ function App(props) {
     }
 
     initWeb3wallet();
-  }, [address, wallectConnectConnector, walletConnectConnected]);
+  }, [address]);
 
   useEffect(() => {
     if (!web3wallet) {
@@ -582,6 +581,16 @@ function App(props) {
     }
 
   }, [web3wallet]);
+
+  useEffect(() => {
+    if (!web3wallet || !wallectConnectConnector) {
+      return;
+    }
+
+    console.log("Add an event listener to kill Wallet Connect V1 session");
+
+    web3wallet.on("session_proposal", () => {killWalletConnectV1Session(wallectConnectConnector)});
+  }, [wallectConnectConnector]);
 
   useEffect(() => {
     if (wallectConnectConnector && wallectConnectConnector.connected && address && localChainId) {

@@ -39,4 +39,11 @@ export const disconnectWallectConnectV2Sessions = async (web3wallet) => {
 	*/
 }
 
+export const killWalletConnectV1Session = (wallectConnectConnector) => {
+	if (wallectConnectConnector) {
+		console.log("Kill Wallet Connect V1 session");
+    	wallectConnectConnector.killSession();
+	}
+}
+
 
