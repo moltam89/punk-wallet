@@ -35,7 +35,7 @@ import { Core } from "@walletconnect/core";
 import { Web3Wallet } from "@walletconnect/web3wallet";
 
 import { TransactionManager } from "./helpers/TransactionManager";
-import { getWalletConnectV2ActiveSession, isWalletConnectV2Connected, disconnectWallectConnectV2Sessions, connectWalletConnectV2 } from "./helpers/WalletConnectV2Helper";
+import { isWalletConnectV2Connected, disconnectWallectConnectV2Sessions, connectWalletConnectV2 } from "./helpers/WalletConnectV2Helper";
 
 
 const { confirm } = Modal;
@@ -459,8 +459,6 @@ function App(props) {
       console.log("disconnect");
 
       disconnectFromWalletConnect();
-
-      // Delete connector
     });
   };
 
