@@ -12,6 +12,13 @@ export const isWalletConnectV2Connected = (web3wallet) => {
 	return false;
 }
 
+export const connectWalletConnectV2 = (web3wallet, setWalletConnectConnected, setWalletConnectPeerMeta) => {
+	const activeSession = getWalletConnectV2ActiveSession(web3wallet);
+    if (activeSession) {
+      setWalletConnectConnected(true);
+      setWalletConnectPeerMeta(activeSession?.peer?.metadata);
+    }
+}
 
 export const disconnectWallectConnectV2Sessions = async (web3wallet) => {
 	console.log("Disconnecting from Wallet Connect 2 session");
@@ -38,5 +45,7 @@ export const disconnectWallectConnectV2Sessions = async (web3wallet) => {
 		});
 	*/
 }
+
+
 
 

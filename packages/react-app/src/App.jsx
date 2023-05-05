@@ -35,7 +35,7 @@ import { Core } from "@walletconnect/core";
 import { Web3Wallet } from "@walletconnect/web3wallet";
 
 import { TransactionManager } from "./helpers/TransactionManager";
-import { getWalletConnectV2ActiveSession, isWalletConnectV2Connected, disconnectWallectConnectV2Sessions, killWalletConnectV1Session } from "./helpers/WalletConnectV2Helper";
+import { getWalletConnectV2ActiveSession, isWalletConnectV2Connected, disconnectWallectConnectV2Sessions, connectWalletConnectV2 } from "./helpers/WalletConnectV2Helper";
 
 
 const { confirm } = Modal;
@@ -492,9 +492,8 @@ function App(props) {
     "wallectConnectConnectorSession",
   );
 
-  // Wallet Connect V2 initialization and listeners
   const [web3wallet, setWeb3wallet] = useState();
-
+  // Wallet Connect V2 initialization and listeners
   useEffect(() => {
     if (!address) {
       return;
@@ -545,8 +544,7 @@ function App(props) {
           namespaces
         })
 
-        setWeb3wallet();
-        setWeb3wallet(web3wallet);
+        connectWalletConnectV2(web3wallet, setWalletConnectConnected, setWalletConnectPeerMeta);
       });
 
       web3wallet.on("session_request", async (event) => {
@@ -574,12 +572,7 @@ function App(props) {
       return;
     }
 
-    const activeSession = getWalletConnectV2ActiveSession(web3wallet);
-    if (activeSession) {
-      setWalletConnectConnected(true);
-      setWalletConnectPeerMeta(activeSession?.peer?.metadata);
-    }
-
+    connectWalletConnectV2(web3wallet, setWalletConnectConnected, setWalletConnectPeerMeta);
   }, [web3wallet]);
 
   // Add an event listener to kill Wallet Connect V1 session when V2 Dapp reconnects
@@ -1100,9 +1093,9 @@ function App(props) {
               if (walletConnectConnected) {
                 //existing session... need to kill it and then connect new one....
 
-                await disconnectFromWalletConnect(wallectConnectConnector, web3wallet);
-
                 localStorage.setItem("wallectConnectNextSession", wcLink);
+
+                await disconnectFromWalletConnect(wallectConnectConnector, web3wallet);
               } else {
                 setWalletConnectUrl(wcLink);
               }
