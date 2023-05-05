@@ -477,21 +477,23 @@ function App(props) {
       if (web3wallet && isWalletConnectV2Connected(web3wallet)) {
         console.log("Disconnect from Wallet Connect V2");
         await disconnectWallectConnectV2Sessions(web3wallet);
-
-        // This is a hack to remove session manually
-        // Otherwise if an old session is stuck, we cannot delete it
-        localStorage.removeItem("wc@2:client:0.3//session");
       }
     }
     catch (error) {
       console.error("Coudn't disconnect from Wallet Connect V2", error)
+
+      // This is a hack to remove the session manually
+      // Otherwise if an old session is stuck, we cannot delete it
+      localStorage.removeItem("wc@2:client:0.3//session");
     }    
     
-    setWallectConnectConnectorSession("");
     setWalletConnectUrl("");
-    setWallectConnectConnector();
-    setWalletConnectConnected(false);
     setWalletConnectPeerMeta();
+    setWallectConnectConnector();
+    setWallectConnectConnectorSession("");
+
+    // This has to be the last, so we don't try to reconnect in "Wallet Connect Hook" too early
+    setWalletConnectConnected(false);
   }
 
   const [walletConnectUrl, setWalletConnectUrl] = useLocalStorage("walletConnectUrl");
@@ -645,14 +647,10 @@ function App(props) {
     });
   };
 
+  // "Wallet Connect Hook"
   useEffect(() => {
     if (!walletConnectConnected && address) {
-      let nextSession = localStorage.getItem("wallectConnectNextSession");
-      if (nextSession) {
-        localStorage.removeItem("wallectConnectNextSession");
-        console.log("FOUND A NEXT SESSION IN CACHE");
-        setWalletConnectUrl(nextSession);
-      } else if (wallectConnectConnectorSession) {
+      if (wallectConnectConnectorSession) {
         console.log("NOT CONNECTED AND wallectConnectConnectorSession", wallectConnectConnectorSession);
         connectWallet(wallectConnectConnectorSession);
         setWalletConnectConnected(true);
@@ -688,7 +686,7 @@ function App(props) {
         );
       }
     }
-  }, [walletConnectUrl, address]);
+  }, [walletConnectUrl, address, walletConnectConnected, wallectConnectConnectorSession]);
 
   useEffect(() => {
     if (walletConnectUrl && walletConnectUrl.includes("@2") && web3wallet && !isWalletConnectV2Connected(web3wallet)) {
@@ -1103,14 +1101,10 @@ function App(props) {
               },500)*/
 
               if (walletConnectConnected) {
-                //existing session... need to kill it and then connect new one....
-
-                localStorage.setItem("wallectConnectNextSession", wcLink);
-
                 await disconnectFromWalletConnect(wallectConnectConnector, web3wallet);
-              } else {
-                setWalletConnectUrl(wcLink);
               }
+
+              setWalletConnectUrl(wcLink);
             }}
           />
         </div>
