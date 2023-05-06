@@ -30,10 +30,14 @@ import { useBalance, useExchangePrice, useGasPrice, useLocalStorage, usePoller, 
 
 import WalletConnect from "@walletconnect/client";
 
-// Wallet Connect V2 imports
-import { Core } from "@walletconnect/core";
-import { Web3Wallet } from "@walletconnect/web3wallet";
-import { isWalletConnectV2Connected, disconnectWallectConnectV2Sessions, connectWalletConnectV2 } from "./helpers/WalletConnectV2Helper";
+import {
+  isWalletConnectV2Connected,
+  disconnectWallectConnectV2Sessions,
+  connectWalletConnectV2,
+  updateWalletConnectSession,
+  createWeb3wallet,
+  onSessionProposal
+} from "./helpers/WalletConnectV2Helper";
 
 import { TransactionManager } from "./helpers/TransactionManager";
 import { sendTransaction } from "./helpers/EIP1559Helper";
@@ -514,52 +518,21 @@ function App(props) {
     }
 
     async function initWeb3wallet() {
-      const core = new Core({
-        logger: 'debug',
-        projectId: process.env.REACT_APP_WALLET_CONNECT_PROJECT_ID,
-      });
+      const web3wallet = await createWeb3wallet();
 
-      const web3wallet = await Web3Wallet.init({
-        core, // <- pass the shared `core` instance
-        metadata: {
-          description: "Forkable web wallet for small/quick transactions.",
-          url: "https://punkwallet.io",
-          icons: ["https://punkwallet.io/punk.png"],
-          name: "🧑‍🎤 PunkWallet.io",
-        },
-      });
-
-      web3wallet.on("session_proposal", async (proposal) => {
-        console.log("proposal", proposal);
-
-        if (isWalletConnectV2Connected(web3wallet)) {
-          await disconnectFromWalletConnect(undefined, web3wallet);
+      web3wallet.on(
+        "session_proposal",
+        (proposal) => {
+          onSessionProposal(
+            web3wallet,
+            address,
+            proposal,
+            disconnectFromWalletConnect,
+            setWalletConnectUrl,
+            setWalletConnectConnected,
+            setWalletConnectPeerMeta);
         }
-
-        const { id, params } = proposal;
-        const { proposer, requiredNamespaces, relays } = params;
-
-        const namespaces = {}
-        Object.keys(requiredNamespaces).forEach(key => {
-          const accounts = []
-          requiredNamespaces[key].chains.map(chain => {
-            [address].map((acc) => accounts.push(`${chain}:${acc}`));
-          })
-          namespaces[key] = {
-            accounts,
-            methods: requiredNamespaces[key].methods,
-            events: requiredNamespaces[key].events
-          }
-        })
-
-        await web3wallet.approveSession({
-          id,
-          relayProtocol: relays[0].protocol,
-          namespaces
-        })
-
-        connectWalletConnectV2(web3wallet, setWalletConnectConnected, setWalletConnectPeerMeta);
-      });
+      )
 
       web3wallet.on("session_request", async (event) => {
         console.log("session_request event", event);
@@ -638,14 +611,7 @@ function App(props) {
         updateWalletConnectSession(wallectConnectConnector, address, localChainId);
       }
     }
-  }, [address, localChainId]);
-
-  const updateWalletConnectSession = (wallectConnectConnector, address, chainId) => {
-    wallectConnectConnector.updateSession({
-      accounts: [address],
-      chainId: localChainId,
-    });
-  };
+  }, [address, localChainId, wallectConnectConnector]);
 
   // "Wallet Connect Hook"
   useEffect(() => {
@@ -704,6 +670,7 @@ function App(props) {
   useMemo(() => {
     if (address && window.location.pathname) {
       if (window.location.pathname.indexOf("/wc") >= 0) {
+        // ToDo
         console.log("WALLET CONNECT!!!!!", window.location.search);
         let uri = window.location.search.replace("?uri=", "");
         console.log("WC URI:", uri);
