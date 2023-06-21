@@ -4,6 +4,7 @@ export { default as AddressInput } from "./AddressInput";
 export { default as Balance } from "./Balance";
 export { default as Blockie } from "./Blockie";
 export { default as BytesStringInput } from "./BytesStringInput";
+export { default as ERC20Balance } from "./ERC20Balance";
 export { default as Contract } from "./Contract";
 export { default as EtherInput } from "./EtherInput";
 export { default as Faucet } from "./Faucet";
