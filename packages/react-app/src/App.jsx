@@ -13,6 +13,8 @@ import {
   Address,
   AddressInput,
   Balance,
+  ERC20Balance,
+  ERC20Selector,
   EtherInput,
   Faucet,
   GasGauge,
@@ -233,6 +235,8 @@ function App(props) {
   const yourLocalBalance = useBalance(localProvider, address);
 
   const balance = yourLocalBalance && formatEther(yourLocalBalance);
+
+  const [token, setToken] = useLocalStorage(targetNetwork.name + "token");
 
   // if you don't have any money, scan the other networks for money
   // lol this poller is a bad idea why does it keep
@@ -916,7 +920,25 @@ function App(props) {
       <div
         style={{ clear: "both", opacity: yourLocalBalance ? 1 : 0.2, width: 500, margin: "auto", position: "relative" }}
       >
-        <Balance value={yourLocalBalance} size={12 + window.innerWidth / 16} price={price} />
+        {targetNetwork.ERC20Tokens && <ERC20Selector targetNetwork={targetNetwork} token={token} setToken={setToken}/>}
+
+        <div>
+          {token ?
+            <ERC20Balance
+              erc20TokenAddress={targetNetwork.ERC20Tokens[token].address}
+              size={12 + window.innerWidth / 16}
+              userProvider={userProvider}
+              rpcURL={targetNetwork.rpcUrl}
+              address={address}
+            />
+            :
+            <Balance
+              value={yourLocalBalance}
+              size={12 + window.innerWidth / 16}
+              price={price} />
+          }
+        </div>
+        
         <span style={{ verticalAlign: "middle" }}>
           {networkSelect}
           {faucetHint}

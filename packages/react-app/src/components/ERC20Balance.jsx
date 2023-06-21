@@ -26,7 +26,7 @@ export default function ERC20Balance({erc20TokenAddress, rpcURL, size, address})
     }
 
     getBalance();
-  }, [address])
+  }, [address, erc20TokenAddress, rpcURL])
 
   return (
     <div>
