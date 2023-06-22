@@ -11,9 +11,10 @@ export default function ERC20Selector( {targetNetwork, token, setToken} ) {
 
     options.push(
         <Select.Option key={targetNetwork.nativeToken} value={""}>
-            <span style={{fontSize: 24 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-evenly", fontSize: 24 }}>
+                <img style={{height: "1em", width: "1em"}} src={targetNetwork.nativeTokenImg}/>
                 {targetNetwork.nativeToken}
-            </span>
+            </div>
         </Select.Option>
     );
 
@@ -22,9 +23,10 @@ export default function ERC20Selector( {targetNetwork, token, setToken} ) {
 
         options.push(
             <Select.Option key={tokenSymbol} value={tokenSymbol}>
-                <span style={{fontSize: 24 }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-evenly", fontSize: 24 }}>
+                    <img style={{height: "1em", width: "1em"}} src={targetNetwork.ERC20Tokens[tokenSymbol].img}/>
                     {token.symbol}
-                </span>
+                </div>
             </Select.Option>
         );
     }
