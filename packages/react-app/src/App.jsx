@@ -14,6 +14,7 @@ import {
   AddressInput,
   Balance,
   ERC20Balance,
+  ERC20Input,
   ERC20Selector,
   EtherInput,
   Faucet,
@@ -992,19 +993,35 @@ function App(props) {
         <div style={{ padding: 10 }}>
           {walletConnectTx ? (
             <Input disabled={true} value={amount} />
-          ) : (
-            <EtherInput
-              price={price || targetNetwork.price}
-              value={amount}
-              token={targetNetwork.token || "ETH"}
-              address={address}
-              provider={localProvider}
-              gasPrice={gasPrice}
-              onChange={value => {
-                setAmount(value);
-              }}
-            />
-          )}
+          ) : 
+            (
+            token ? 
+              <ERC20Input
+                token={token}
+                targetNetwork={targetNetwork}
+                price={price || targetNetwork.price}
+                value={amount}
+                address={address}
+                provider={localProvider}
+                gasPrice={gasPrice}
+                onChange={value => {
+                  setAmount(value);
+                }}
+              />
+            :
+              <EtherInput
+                price={price || targetNetwork.price}
+                value={amount}
+                token={targetNetwork.token || "ETH"}
+                address={address}
+                provider={localProvider}
+                gasPrice={gasPrice}
+                onChange={value => {
+                  setAmount(value);
+                }}
+              />
+            )
+          }
         </div>
         {/*
           <div style={{ padding: 10 }}>

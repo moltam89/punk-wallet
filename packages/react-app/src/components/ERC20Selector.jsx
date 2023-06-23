@@ -3,20 +3,20 @@ import React from "react";
 import {  NETWORKS } from "../constants";
 import { Select } from "antd";
 
-const tokenOption = (name, value, imgSrc) => (
-    <Select.Option key={name} value={value}>
-        {optionContent(name, imgSrc)}
-    </Select.Option>
-);
-
-const optionContent = (name, imgSrc) => (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-evenly", fontSize: 24, }}>
+export const tokenDisplay = (name, imgSrc) => (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-evenly"}}>
         <img style={{ height: "1em", width: "1em" }} src={imgSrc} />
         {name}
     </div>
 );
 
 export default function ERC20Selector( {targetNetwork, token, setToken} ) {
+    const tokenOption = (name, value, imgSrc) => (
+        <Select.Option key={name} value={value} style={{lineHeight:2, fontSize:"1.5em"}}>
+            {tokenDisplay(name, imgSrc)}
+        </Select.Option>
+    );
+    
     const options = [];
 
     options.push(tokenOption(targetNetwork.nativeToken, "", targetNetwork.nativeTokenImgSrc));
@@ -43,7 +43,7 @@ export default function ERC20Selector( {targetNetwork, token, setToken} ) {
         <div>
             <Select
                 size="large"
-                defaultValue={optionContent(defaultName, defaultImgSrc)}
+                defaultValue={tokenDisplay(defaultName, defaultImgSrc)}
                 style={{ width: 170, fontSize: 30 }}
                 listHeight={1024}
                 onChange={value => {
