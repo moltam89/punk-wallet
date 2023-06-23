@@ -3,40 +3,48 @@ import React from "react";
 import {  NETWORKS } from "../constants";
 import { Select } from "antd";
 
+const tokenOption = (name, value, imgSrc) => (
+    <Select.Option key={name} value={value}>
+        {optionContent(name, imgSrc)}
+    </Select.Option>
+);
 
+const optionContent = (name, imgSrc) => (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-evenly", fontSize: 24, }}>
+        <img style={{ height: "1em", width: "1em" }} src={imgSrc} />
+        {name}
+    </div>
+);
 
 export default function ERC20Selector( {targetNetwork, token, setToken} ) {
-
     const options = [];
 
-    options.push(
-        <Select.Option key={targetNetwork.nativeToken} value={""}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-evenly", fontSize: 24 }}>
-                <img style={{height: "1em", width: "1em"}} src={targetNetwork.nativeTokenImg}/>
-                {targetNetwork.nativeToken}
-            </div>
-        </Select.Option>
-    );
+    options.push(tokenOption(targetNetwork.nativeToken, "", targetNetwork.nativeTokenImgSrc));
 
-    for (const tokenSymbol in targetNetwork.ERC20Tokens) {
-        const token = targetNetwork.ERC20Tokens[tokenSymbol];
+    for (const ERC20Token in targetNetwork.ERC20Tokens) {
+        const tokenObject = targetNetwork.ERC20Tokens[ERC20Token];
+        const tokenSymbol = tokenObject.symbol;
+        const tokenImgSrc = tokenObject.imgSrc;
 
-        options.push(
-            <Select.Option key={tokenSymbol} value={tokenSymbol}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-evenly", fontSize: 24 }}>
-                    <img style={{height: "1em", width: "1em"}} src={targetNetwork.ERC20Tokens[tokenSymbol].img}/>
-                    {token.symbol}
-                </div>
-            </Select.Option>
-        );
+        options.push(tokenOption(tokenSymbol, tokenSymbol, tokenImgSrc));
+    }
+
+    let defaultName = targetNetwork.nativeToken;
+    let defaultImgSrc = targetNetwork.nativeTokenImgSrc;
+
+    if (token) {
+        const tokenObject = targetNetwork.ERC20Tokens[token];
+
+        defaultName = tokenObject.symbol;
+        defaultImgSrc = tokenObject.imgSrc;
     }
 
     const buidlSelect = (
         <div>
             <Select
                 size="large"
-                defaultValue={token ? targetNetwork.ERC20Tokens[token].symbol : targetNetwork.nativeToken}
-                style={{ textAlign: "left", width: 170, fontSize: 30 }}
+                defaultValue={optionContent(defaultName, defaultImgSrc)}
+                style={{ width: 170, fontSize: 30 }}
                 listHeight={1024}
                 onChange={value => {
                         setToken(value);    
