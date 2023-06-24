@@ -999,14 +999,7 @@ function App(props) {
               <ERC20Input
                 token={token}
                 targetNetwork={targetNetwork}
-                price={price || targetNetwork.price}
-                value={amount}
-                address={address}
-                provider={localProvider}
-                gasPrice={gasPrice}
-                onChange={value => {
-                  setAmount(value);
-                }}
+                setAmount={setAmount}
               />
             :
               <EtherInput
