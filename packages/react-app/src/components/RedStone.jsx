@@ -22,7 +22,7 @@ export default function RedStone({}) {
 
     useEffect(() => {
         async function getBalance() {
-
+            const ethPrice = await contract.getLatestEthPrice();
         }
 
         getBalance();
