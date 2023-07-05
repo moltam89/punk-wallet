@@ -23,6 +23,7 @@ import {
   IFrame,
   QRPunkBlockie,
   Ramp,
+  RedStone,
   TransactionResponses,
   Wallet,
   WalletConnectTransactionPopUp,
@@ -925,6 +926,10 @@ function App(props) {
       <div
         style={{ clear: "both", opacity: yourLocalBalance ? 1 : 0.2, width: 500, margin: "auto", position: "relative" }}
       >
+        <div>
+            <RedStone/>
+        </div>
+        
         <div>
           {token ?
             <ERC20Balance
