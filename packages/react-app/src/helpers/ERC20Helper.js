@@ -7,7 +7,6 @@ const abi = [
     "function balanceOf(address owner) view returns (uint256)",
     "function decimals() view returns (uint8)",
     "function transfer(address to, uint amount) returns (bool)",
-    "function mint(address _to, uint256 _amount) returns (bool)"
 ];
 
 export class ERC20Helper {
@@ -61,26 +60,12 @@ export class ERC20Helper {
 
 		return Number(decimalCorrectedAmountString);
 	}
-
-	mint = (to, amount) => { 
-		return this.contract.mint(to, amount);
-	}
-
-	mintPopulateTransaction = (to, amount, decimals) => {
-		return this.contract.populateTransaction.mint(to, this.getDecimalCorrectedAmountBigNumber(amount, decimals));
-	}	
 }
 
 export const getTransferTxParams = (token, to, amount) => {
 	const erc20Helper = new ERC20Helper(token.address);
 
 	return erc20Helper.transferPopulateTransaction(to, amount, token.decimals);
-}
-
-export const getMintTxParams = (token, to, amount) => {
-	const erc20Helper = new ERC20Helper(token.address);
-
-	return erc20Helper.mintPopulateTransaction(to, amount, token.decimals);
 }
 
 export const getTokenBalance = async (token, rpcURL, address) => {
