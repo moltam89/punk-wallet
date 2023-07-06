@@ -506,6 +506,18 @@ export const NETWORKS = {
     chainId: 280,
     rpcUrl: "https://testnet.era.zksync.dev",
     blockExplorer: "https://goerli.explorer.zksync.io/",
+    erc20Tokens: [
+      {
+        name: "MONYO",
+        address: "0x1a43e6741Ad9cE1FeAD3f9FEeb5C757f81C9131d",
+        decimals: 18,
+        imgSrc: "/USDC.png"
+      }
+    ],
+    nativeToken: {
+      name:"ETH",
+      imgSrc:"/ETH.png"
+    }
   },
   canto: {
     name: "canto",
