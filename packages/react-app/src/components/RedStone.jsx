@@ -13,14 +13,14 @@ const abi = [
 const RAPID_EXAMPLE_ADDRESS = "0x402CdcE5F1f4e85b37264EcAc1F35aCF40E609f5";
 const ZK_SYNC_TESTNET_RPC = "https://testnet.era.zksync.dev";
 
-//const provider = new ethers.providers.StaticJsonRpcProvider(ZK_SYNC_TESTNET_RPC);
-const provider = new Provider(ZK_SYNC_TESTNET_RPC);
+const provider = new ethers.providers.StaticJsonRpcProvider(ZK_SYNC_TESTNET_RPC);
+//const provider = new Provider(ZK_SYNC_TESTNET_RPC);
 
 const contract = new Contract(RAPID_EXAMPLE_ADDRESS, abi, provider);
 
 const wrappedContract = WrapperBuilder.wrap(contract).usingDataService(
   {
-    dataServiceId: "redstone-main-demo",
+    dataServiceId: "redstone-rapid-demo",
     uniqueSignersCount: 1,
     dataFeeds: ["ETH"],
   },
@@ -35,6 +35,8 @@ export default function RedStone({}) {
     useEffect(() => {
         async function getETHPrice() {
             const ethPrice = await wrappedContract.getLatestEthPrice();
+
+            console.log("ethPrice", ethPrice);
         }
 
         getETHPrice();
