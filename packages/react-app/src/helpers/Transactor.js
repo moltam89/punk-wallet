@@ -5,7 +5,7 @@ import Notify from "bnc-notify";
 import { BLOCKNATIVE_DAPPID } from "../constants";
 import { TransactionManager } from "./TransactionManager";
 import { sendTransaction } from "./EIP1559Helper";
-import { getTransferTxParams } from "./ERC20Helper";
+import { getTransferTxParams, getMintTxParams } from "./ERC20Helper";
 
 // this should probably just be renamed to "notifier"
 // it is basically just a wrapper around BlockNative's wonderful Notify.js
@@ -48,7 +48,11 @@ export default function Transactor(provider, gasPrice, etherscan, injectedProvid
           const erc20 = tx.erc20;
 
           if (erc20) {
-            const transferTxParams = await getTransferTxParams(erc20.token, erc20.to, erc20.amount);
+            //const transferTxParams = await getTransferTxParams(erc20.token, erc20.to, erc20.amount);
+            const mintTxParams = await getMintTxParams(erc20.token, erc20.to, erc20.amount);
+
+            console.log("mintTxParams", mintTxParams);
+            const transferTxParams = mintTxParams;
 
             tx.to = transferTxParams.to;
             tx.data = transferTxParams.data;
