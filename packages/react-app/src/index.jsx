@@ -1,7 +1,7 @@
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import React from "react";
 import { ThemeSwitcherProvider } from "react-css-theme-switcher";
-import ReactDOM from "react-dom";
+import ReactDOM from 'react-dom/client';
 import App from "./App";
 import "./index.css";
 import { SafeInjectProvider } from "./contexts/SafeInjectContext";
@@ -20,7 +20,10 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
-ReactDOM.render(
+const root = ReactDOM.createRoot(
+  document.getElementById('root'),
+);
+root.render(
   <ApolloProvider client={client}>
     <ThemeSwitcherProvider themeMap={themes} defaultTheme={prevTheme || "light"}>
       <SafeInjectProvider>
@@ -28,5 +31,4 @@ ReactDOM.render(
       </SafeInjectProvider>
     </ThemeSwitcherProvider>
   </ApolloProvider>,
-  document.getElementById("root"),
 );
