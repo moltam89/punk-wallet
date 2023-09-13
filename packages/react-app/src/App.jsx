@@ -21,6 +21,7 @@ import {
   GasGauge,
   Header,
   IFrame,
+  LiFiWidgetImport,
   QRPunkBlockie,
   Ramp,
   TransactionResponses,
@@ -869,6 +870,7 @@ function App(props) {
 
   return (
     <div className="App">
+      <LiFiWidgetImport />
       <div className="site-page-header-ghost-wrapper">
         <Header
           extra={[
