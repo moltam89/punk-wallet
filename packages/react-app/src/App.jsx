@@ -46,6 +46,10 @@ import {
 import { TransactionManager } from "./helpers/TransactionManager";
 import { sendTransaction } from "./helpers/EIP1559Helper";
 
+// I think the problem with this is that babel-plugin-transform-exponentiation-operator (https://babeljs.io/docs/babel-plugin-transform-exponentiation-operator)
+// transforms 2n**3n into  Math.pow(2n, 3n), but Math.pow doesn't support bigints
+console.log("2n**3n", 2n**3n)
+
 const { confirm } = Modal;
 
 const { ethers } = require("ethers");
