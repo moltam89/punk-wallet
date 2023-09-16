@@ -870,7 +870,9 @@ function App(props) {
 
   return (
     <div className="App">
-      <LiFiWidgetImport />
+      <LiFiWidgetImport 
+          setWalletConnectUrl={setWalletConnectUrl}
+      />
       <div className="site-page-header-ghost-wrapper">
         <Header
           extra={[
