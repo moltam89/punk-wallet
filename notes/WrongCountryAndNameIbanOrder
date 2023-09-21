@@ -1,0 +1,24 @@
+{
+    "kind": "redeem",
+    "amount": "1",
+    "counterpart": {
+        "identifier": {
+            "standard": "iban",
+            "iban": "LT15 3250 0917 5268 1397"
+        },
+        "details": {
+            "country": "HU",
+            "firstName": "Tamás",
+            "lastName": "Molnarrr"
+        }
+    },
+    "currency": "EUR",
+    "accountId": "7219c9b9-489f-11ee-8dde-1a083edbf33f",
+    "address": "0xc54C244200d657650087455869f1aD168537d3B3",
+    "signature": "0x34b22c8ff6863067b341b2b25a7362427b770685eb1f7bd2f7015653851ab4136aa7a4ada730af3a2dac235cbda2c125200caedab94a384f14ccb787a1fac4c31c",
+    "message": "Send EUR 1 to LT15 3250 0917 5268 1397 at 2023-09-29T19:55:50+02:00",
+    "memo": "whyCountry",
+    "supportingDocumentId": "",
+    "chain": "polygon",
+    "network": "mainnet"
+}

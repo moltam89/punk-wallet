@@ -2,7 +2,7 @@ import { CaretUpOutlined, ScanOutlined, SendOutlined, ReloadOutlined } from "@an
 import { JsonRpcProvider, StaticJsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 import { formatEther, parseEther } from "@ethersproject/units";
 import WalletConnectProvider from "@walletconnect/web3-provider";
-import { Alert, Button, Col, Row, Select, Spin, Input, Modal, notification } from "antd";
+import { Alert, Button, Checkbox, Col, Row, Select, Spin, Input, Modal, notification } from "antd";
 import "antd/dist/antd.css";
 import { useUserAddress } from "eth-hooks";
 import React, { useCallback, useEffect, useState, useMemo } from "react";
@@ -21,6 +21,7 @@ import {
   GasGauge,
   Header,
   IFrame,
+  Monerium,
   QRPunkBlockie,
   Ramp,
   TransactionResponses,
@@ -49,6 +50,7 @@ import { sendTransaction } from "./helpers/EIP1559Helper";
 const { confirm } = Modal;
 
 const { ethers } = require("ethers");
+
 /*
     Welcome to 🏗 scaffold-eth !
 
@@ -127,6 +129,9 @@ const web3Modal = new Web3Modal({
 });
 
 function App(props) {
+  const [moneriumConnected, setMoneriumConnected] = useState(false);
+  const [ibanAddress, setIbanAddress] = useState(false);
+
   //const [isWalletModalVisible, setIsWalletModalVisible] = useState(false);
   //const [walletModalData, setWalletModalData] = useState();
 
@@ -872,6 +877,11 @@ function App(props) {
       <div className="site-page-header-ghost-wrapper">
         <Header
           extra={[
+            <Monerium
+              moneriumConnected={moneriumConnected}
+              setMoneriumConnected={setMoneriumConnected}
+              currentPunkAddress={address}
+            />,
             <Address
               key="address"
               fontSize={32}
@@ -961,6 +971,15 @@ function App(props) {
       )}
 
       <div style={{ position: "relative", width: 320, margin: "auto", textAlign: "center", marginTop: 32 }}>
+        <Checkbox
+          onChange={
+            (e) => {
+              console.log("clock", e)
+            }
+          }>
+          IBAN
+        </Checkbox>
+
         <div style={{ padding: 10 }}>
           <AddressInput
             ensProvider={mainnetProvider}

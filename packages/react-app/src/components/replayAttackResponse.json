@@ -1,0 +1,32 @@
+{
+    "id": "539791d4-5bbe-11ee-8a33-e2476bcc5b33",
+    "profile": "eb87db20-489e-11ee-8dde-1a083edbf33f",
+    "accountId": "7219c9b9-489f-11ee-8dde-1a083edbf33f",
+    "address": "0xc54C244200d657650087455869f1aD168537d3B3",
+    "kind": "redeem",
+    "amount": "1",
+    "currency": "eur",
+    "totalFee": "0",
+    "fees": [],
+    "counterpart": {
+        "details": {},
+        "identifier": {
+            "chain": "gnosis",
+            "address": "0x44b7Cda759e46cdb427495C702cA5B67c1A07e82",
+            "network": "mainnet",
+            "standard": "chain"
+        }
+    },
+    "memo": "Powered by Monerium SDK",
+    "supportingDocumentId": "",
+    "chain": "polygon",
+    "network": "mainnet",
+    "txHashes": [],
+    "meta": {
+        "state": "placed",
+        "placedBy": "eb87db82-489e-11ee-8dde-1a083edbf33f",
+        "placedAt": "2023-09-25T16:12:31.095251Z",
+        "receivedAmount": "0",
+        "sentAmount": "0"
+    }
+}

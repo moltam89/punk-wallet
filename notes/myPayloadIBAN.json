@@ -1,0 +1,20 @@
+{
+    "amount": "1",
+    "signature": "0x205599472b76bdf53e98c3d69332d00113bf7e818a1ac5e2900216b4f086bd2b78919e6168a1641703df5a270b6fe2319a9379e0f5c22fb80914d87e1e6923bd1b",
+    "address": "0xc54C244200d657650087455869f1aD168537d3B3",
+    "counterpart": {
+        "identifier": {
+            "standard": "iban",
+            "iban": "LT153250091752681397"
+        },
+        "details": {
+            "firstName": "Tamas",
+            "lastName": "Molnar"
+        }
+    },
+    "message": "Send EUR 1 to LT153250091752681397 at 2023-09-25T15:32:39+02:00",
+    "memo": "Powered by Monerium SDK",
+    "chain": "polygon",
+    "kind": "redeem",
+    "currency": "eur"
+}

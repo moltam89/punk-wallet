@@ -1,0 +1,21 @@
+{
+    "kind": "redeem",
+    "amount": "1",
+    "counterpart": {
+        "identifier": {
+            "standard": "chain",
+            "address": "0xDb5c3bbd3f1873843245Afd4F22f29f8A045346A",
+            "chain": "gnosis",
+            "network": "mainnet"
+        },
+        "details": {}
+    },
+    "memo": "yoooo",
+    "currency": "EUR",
+    "accountId": "7219c9b9-489f-11ee-8dde-1a083edbf33f",
+    "address": "0xc54C244200d657650087455869f1aD168537d3B3",
+    "chain": "polygon",
+    "network": "mainnet",
+    "signature": "0xcc64801daf257feadfe64b328d65bee3cbacde576788a250f2802ad04ee8188e5075185759b651632847f062e0a4533d57d0d37605b449ba6c6b5591ff8ea3fb1c",
+    "message": "Send EUR 1 to 0xDb5c3bbd3f1873843245Afd4F22f29f8A045346A on gnosis at 2023-09-25T11:44:18+02:00"
+}

@@ -1,0 +1,19 @@
+{
+    "amount": "1",
+    "signature": "0x4d93d718c6bf4dddc7b4c3b56e241d9f66b2e766e4938b628ad95ca3a6ed95661fe365ae8472ff7f6eafdaf5e7c35a8ce99ed4417422077197a915dde53fa3a51c",
+    "address": "0xc54C244200d657650087455869f1aD168537d3B3",
+    "counterpart": {
+        "identifier": {
+            "standard": "chain",
+            "address": "0x44b7Cda759e46cdb427495C702cA5B67c1A07e82",
+            "chain": "gnosis",
+            "network": "mainnet"
+        },
+        "details": {}
+    },
+    "message": "Send EUR 1 to LT953250086231898476 at 2023-09-25T17:37:36+02:00",
+    "memo": "Powered by Monerium SDK",
+    "chain": "polygon",
+    "kind": "redeem",
+    "currency": "eur"
+}
