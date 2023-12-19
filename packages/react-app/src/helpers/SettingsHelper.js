@@ -66,10 +66,16 @@ export class SettingsHelper {
         return existingItem;
     }
 
-    getSelectedItem = () => {
+    getSelectedItem = (overrideCustomSettings) => {
         const selectedName = getSelectedName(this.settings);
 
-        return getAllItems(this.items, this.settings).find(item => item.name === selectedName);
+        let selectedItem = getAllItems(this.items, this.settings).find(item => item.name === selectedName);
+
+        if (overrideCustomSettings) {
+            selectedItem = {...selectedItem, ...this.getItemSettings()}
+        }
+
+        return selectedItem;
     }
 
     isCustomItem = (item, keyProperty) => {
