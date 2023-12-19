@@ -67,16 +67,12 @@ export class SettingsHelper {
     }
 
     getSelectedItem = (overrideWithItemSettings) => {
-        console.log("ennek semmi ertelme nincsen")
         const selectedName = getSelectedName(this.settings);
-
-        console.log("wtf", ...this.getItemSettings())
 
         let selectedItem = getAllItems(this.items, this.settings).find(item => item.name === selectedName);
 
         if (overrideWithItemSettings) {
-            console.log("wtf", ...this.getItemSettings())
-            selectedItem = {...selectedItem, }
+            selectedItem = {...selectedItem, ...this.getItemSettings(selectedItem)};
         }
 
         return selectedItem;

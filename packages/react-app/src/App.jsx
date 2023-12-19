@@ -131,7 +131,7 @@ function App(props) {
   //const targetNetwork = NETWORKS[cachedNetwork || "ethereum"]; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
   //const targetNetwork = networkSettingsHelper.getSelectedItem();
 
-  const [targetNetwork, setTargetNetwork] = useState(networkSettingsHelper.getSelectedItem(false));
+  const [targetNetwork, setTargetNetwork] = useState(networkSettingsHelper.getSelectedItem(true));
 
   console.log("targetNetwork", targetNetwork);
 /*
