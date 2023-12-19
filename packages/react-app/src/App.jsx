@@ -86,32 +86,6 @@ const { OrderState } = require("@monerium/sdk");
     (and then use the `useExternalContractLoader()` hook!)
 */
 
-/// 📡 What chain are your contracts deployed to?
-
-const networkSettingsStorageKey = "networkSettings";
-
-// ToDo: Check if network settings can be stored in state, currently page refresh is used on network changes
-const cachedNetwork = JSON.parse(window.localStorage.getItem(networkSettingsStorageKey))?.selectedName;
-let targetNetwork = NETWORKS[cachedNetwork || "ethereum"]; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
-if (!targetNetwork) {
-  targetNetwork = NETWORKS["ethereum"];
-}
-// 😬 Sorry for all the console logging
-const DEBUG = false;
-
-// 🛰 providers
-if (DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
-
-// 🏠 Your local provider is usually pointed at your local blockchain
-const localProviderUrl = targetNetwork.rpcUrl;
-// as you deploy to other networks you can set REACT_APP_PROVIDER=https://dai.poa.network in packages/react-app/.env
-const localProviderUrlFromEnv = process.env.REACT_APP_PROVIDER ? process.env.REACT_APP_PROVIDER : localProviderUrl;
-if (DEBUG) console.log("🏠 Connecting to provider:", localProviderUrlFromEnv);
-let localProvider = new StaticJsonRpcProvider(localProviderUrlFromEnv);
-
-// 🔭 block explorer URL
-let blockExplorer = targetNetwork.blockExplorer;
-
 let scanner;
 
 /*
@@ -140,14 +114,37 @@ const web3Modal = new Web3Modal({
   },
 });
 
-const networkName = targetNetwork.name;
-const erc20Tokens = targetNetwork?.erc20Tokens;
-const tokens = getTokens(targetNetwork?.nativeToken, erc20Tokens);
-const tokenSettingsStorageKey = networkName + getStorageKey();
-
 const networks = Object.values(NETWORKS);
 
 function App(props) {
+    /// 📡 What chain are your contracts deployed to? 
+
+  const networkSettingsStorageKey = "networkSettings";
+
+  // ToDo: Check if network settings can be stored in state, currently page refresh is used on network changes
+  const cachedNetwork = JSON.parse(window.localStorage.getItem(networkSettingsStorageKey))?.selectedName;
+  const targetNetwork = NETWORKS[cachedNetwork || "ethereum"]; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+
+  const networkName = targetNetwork.name;
+  const erc20Tokens = targetNetwork?.erc20Tokens;
+
+  // 😬 Sorry for all the console logging
+  const DEBUG = false;
+
+  // 🛰 providers
+  if (DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
+
+  // 🏠 Your local provider is usually pointed at your local blockchain
+  const localProviderUrl = targetNetwork.rpcUrl;
+  // as you deploy to other networks you can set REACT_APP_PROVIDER=https://dai.poa.network in packages/react-app/.env
+  const localProviderUrlFromEnv = process.env.REACT_APP_PROVIDER ? process.env.REACT_APP_PROVIDER : localProviderUrl;
+  if (DEBUG) console.log("🏠 Connecting to provider:", localProviderUrlFromEnv);
+  const localProvider = new StaticJsonRpcProvider(localProviderUrlFromEnv);
+
+  // 🔭 block explorer URL
+  let blockExplorer = targetNetwork.blockExplorer;
+
+
   const [networkSettingsModalOpen, setNetworkSettingsModalOpen] = useState(false);
   const [networkSettings, setNetworkSettings] = useLocalStorage(networkSettingsStorageKey, {});
   const networkSettingsHelper = networks ? new SettingsHelper(networkSettingsStorageKey, networks, networkSettings, setNetworkSettings) : undefined;
@@ -165,6 +162,9 @@ function App(props) {
     }
   }
 
+
+  const tokenSettingsStorageKey = networkName + getStorageKey();
+  const tokens = getTokens(targetNetwork?.nativeToken, erc20Tokens);
   const [tokenSettingsModalOpen, setTokenSettingsModalOpen] = useState(false);
   const [tokenSettings, setTokenSettings] = useLocalStorage(tokenSettingsStorageKey, {});
   const tokenSettingsHelper = tokens ? new SettingsHelper(tokenSettingsStorageKey, tokens, tokenSettings, setTokenSettings) : undefined;
