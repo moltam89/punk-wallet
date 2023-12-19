@@ -56,8 +56,9 @@ import { getMemo, getNewMoneriumClient, getFilteredOrders, isValidIban, placeIba
 
 import { SettingsHelper } from "./helpers/SettingsHelper";
 
-import { SELECTED_BLOCK_EXPORER_NAME_KEY, getBLockExplorer, migrateSelectedNetworkStorageSetting } from "./helpers/NetworkSettingsHelper";
-import { getSelectedErc20Token, getStorageKey, getTokens, migrateSelectedTokenStorageSetting } from "./helpers/TokenSettingsHelper";
+import { NETWORK_SETTINGS_STORAGE_KEY, SELECTED_BLOCK_EXPORER_NAME_KEY, getBLockExplorer, migrateSelectedNetworkStorageSetting } from "./helpers/NetworkSettingsHelper";
+
+import { TOKEN_SETTINGS_STORAGE_KEY, getSelectedErc20Token, getTokens, migrateSelectedTokenStorageSetting } from "./helpers/TokenSettingsHelper";
 
 import { getChain} from "./helpers/ChainHelper";
 
@@ -114,16 +115,33 @@ const web3Modal = new Web3Modal({
   },
 });
 
-const networks = Object.values(NETWORKS);
+
 
 function App(props) {
-    /// 📡 What chain are your contracts deployed to? 
+  /// 📡 What chain are your contracts deployed to? 
 
-  const networkSettingsStorageKey = "networkSettings";
+  const networks = Object.values(NETWORKS);
+
+  const [networkSettingsModalOpen, setNetworkSettingsModalOpen] = useState(false);
+  const [networkSettings, setNetworkSettings] = useLocalStorage(NETWORK_SETTINGS_STORAGE_KEY, {});
+  const networkSettingsHelper = networks ? new SettingsHelper(NETWORK_SETTINGS_STORAGE_KEY, networks, networkSettings, setNetworkSettings) : undefined;
 
   // ToDo: Check if network settings can be stored in state, currently page refresh is used on network changes
-  const cachedNetwork = JSON.parse(window.localStorage.getItem(networkSettingsStorageKey))?.selectedName;
+  const cachedNetwork = JSON.parse(window.localStorage.getItem(NETWORK_SETTINGS_STORAGE_KEY))?.selectedName;
   const targetNetwork = NETWORKS[cachedNetwork || "ethereum"]; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+
+  if (networkSettingsHelper) {
+    const selectedBlockExplorerName = networkSettingsHelper.getItemSettings(targetNetwork)[SELECTED_BLOCK_EXPORER_NAME_KEY];
+
+    if (selectedBlockExplorerName) {
+      const selectedBlockExplorer = getBLockExplorer(getChain(targetNetwork.chainId), selectedBlockExplorerName);
+
+      if (selectedBlockExplorer) {
+        blockExplorer = selectedBlockExplorer.url + "/";
+        targetNetwork.blockExplorer = selectedBlockExplorer.url + "/";
+      }
+    }
+  }
 
   const networkName = targetNetwork.name;
   const erc20Tokens = targetNetwork?.erc20Tokens;
@@ -145,25 +163,7 @@ function App(props) {
   let blockExplorer = targetNetwork.blockExplorer;
 
 
-  const [networkSettingsModalOpen, setNetworkSettingsModalOpen] = useState(false);
-  const [networkSettings, setNetworkSettings] = useLocalStorage(networkSettingsStorageKey, {});
-  const networkSettingsHelper = networks ? new SettingsHelper(networkSettingsStorageKey, networks, networkSettings, setNetworkSettings) : undefined;
-
-  if (networkSettingsHelper) {
-    const selectedBlockExplorerName = networkSettingsHelper.getItemSettings(targetNetwork)[SELECTED_BLOCK_EXPORER_NAME_KEY];
-
-    if (selectedBlockExplorerName) {
-      const selectedBlockExplorer = getBLockExplorer(getChain(targetNetwork.chainId), selectedBlockExplorerName);
-
-      if (selectedBlockExplorer) {
-        blockExplorer = selectedBlockExplorer.url + "/";
-        targetNetwork.blockExplorer = selectedBlockExplorer.url + "/";
-      }
-    }
-  }
-
-
-  const tokenSettingsStorageKey = networkName + getStorageKey();
+  const tokenSettingsStorageKey = networkName + TOKEN_SETTINGS_STORAGE_KEY;
   const tokens = getTokens(targetNetwork?.nativeToken, erc20Tokens);
   const [tokenSettingsModalOpen, setTokenSettingsModalOpen] = useState(false);
   const [tokenSettings, setTokenSettings] = useLocalStorage(tokenSettingsStorageKey, {});

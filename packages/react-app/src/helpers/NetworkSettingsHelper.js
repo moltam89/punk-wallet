@@ -1,5 +1,7 @@
 import { isEIP3091Explorer } from "./ChainHelper";
 
+export const NETWORK_SETTINGS_STORAGE_KEY = "NetworkSettings";
+
 export const SELECTED_BLOCK_EXPORER_NAME_KEY = "selectedBlockExplorerName";
 
 export const getBLockExplorers = (chain) => chain.explorers.filter(explorer => isEIP3091Explorer(explorer));
