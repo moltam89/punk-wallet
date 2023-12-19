@@ -66,13 +66,17 @@ export class SettingsHelper {
         return existingItem;
     }
 
-    getSelectedItem = (overrideCustomSettings) => {
+    getSelectedItem = (overrideWithItemSettings) => {
+        console.log("ennek semmi ertelme nincsen")
         const selectedName = getSelectedName(this.settings);
+
+        console.log("wtf", ...this.getItemSettings())
 
         let selectedItem = getAllItems(this.items, this.settings).find(item => item.name === selectedName);
 
-        if (overrideCustomSettings) {
-            selectedItem = {...selectedItem, ...this.getItemSettings()}
+        if (overrideWithItemSettings) {
+            console.log("wtf", ...this.getItemSettings())
+            selectedItem = {...selectedItem, }
         }
 
         return selectedItem;
@@ -162,7 +166,10 @@ const getAllItems = (items, settings) => items.concat(getCustomItems(settings));
 
 const getCustomItems = (settings) => settings[CUSTOM_ITEMS_KEY] ?? CUSTOM_ITEMS_DEFAULT_VALUE;
 
-const getItemsSettings = (settings) => settings[ITEMS_SETTINGS_KEY] ?? ITEMS_SETTINGS_DEFAULT_VALUE;
+const getItemsSettings = (settings) => {
+    console.log("???")
+    return settings[ITEMS_SETTINGS_KEY] ?? ITEMS_SETTINGS_DEFAULT_VALUE;
+} 
 
 const getIndexMap = (settings) => settings[INDEX_MAP_KEY];
 

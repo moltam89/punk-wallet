@@ -134,7 +134,7 @@ function App(props) {
   const [targetNetwork, setTargetNetwork] = useState(networkSettingsHelper.getSelectedItem(false));
 
   console.log("targetNetwork", targetNetwork);
-
+/*
   if (networkSettingsHelper) {
     const selectedBlockExplorerName = networkSettingsHelper.getItemSettings(targetNetwork)[SELECTED_BLOCK_EXPORER_NAME_KEY];
 
@@ -147,6 +147,7 @@ function App(props) {
       }
     }
   }
+*/
 
   const networkName = targetNetwork.name;
   const erc20Tokens = targetNetwork?.erc20Tokens;
