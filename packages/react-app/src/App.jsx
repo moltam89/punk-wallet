@@ -127,8 +127,13 @@ function App(props) {
   const networkSettingsHelper = networks ? new SettingsHelper(NETWORK_SETTINGS_STORAGE_KEY, networks, networkSettings, setNetworkSettings) : undefined;
 
   // ToDo: Check if network settings can be stored in state, currently page refresh is used on network changes
-  const cachedNetwork = JSON.parse(window.localStorage.getItem(NETWORK_SETTINGS_STORAGE_KEY))?.selectedName;
-  const targetNetwork = NETWORKS[cachedNetwork || "ethereum"]; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+  //const cachedNetwork = JSON.parse(window.localStorage.getItem(NETWORK_SETTINGS_STORAGE_KEY))?.selectedName;
+  //const targetNetwork = NETWORKS[cachedNetwork || "ethereum"]; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+  //const targetNetwork = networkSettingsHelper.getSelectedItem();
+
+  const [targetNetwork, setTargetNetwork] = useState(networkSettingsHelper.getSelectedItem());
+
+  console.log("targetNetwork", targetNetwork);
 
   if (networkSettingsHelper) {
     const selectedBlockExplorerName = networkSettingsHelper.getItemSettings(targetNetwork)[SELECTED_BLOCK_EXPORER_NAME_KEY];
