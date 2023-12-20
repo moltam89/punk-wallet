@@ -1042,12 +1042,9 @@ function App(props) {
                 settingsHelper={networkSettingsHelper}
                 settingsModalOpen={setNetworkSettingsModalOpen}
                 itemCoreDisplay={(network) => <NetworkDisplay network={network}/>}
-                onChange={() => setTimeout(
-                    () => {
-                      window.location.reload();
-                    },
-                    1
-                  )
+                onChange={(value) => {
+                  setTargetNetwork(networks.find(network => network.name = value));
+                  }
                 }       
                 optionStyle={{lineHeight:1.1}}
               />
