@@ -56,7 +56,7 @@ import { getMemo, getNewMoneriumClient, getFilteredOrders, isValidIban, placeIba
 
 import { SettingsHelper } from "./helpers/SettingsHelper";
 
-import { NETWORK_SETTINGS_STORAGE_KEY, SELECTED_BLOCK_EXPORER_NAME_KEY, getBLockExplorer, migrateSelectedNetworkStorageSetting, netowrkSettingsTransformer } from "./helpers/NetworkSettingsHelper";
+import { NETWORK_SETTINGS_STORAGE_KEY, SELECTED_BLOCK_EXPORER_NAME_KEY, getBLockExplorer, migrateSelectedNetworkStorageSetting, getNetworkWithSettings } from "./helpers/NetworkSettingsHelper";
 
 import { TOKEN_SETTINGS_STORAGE_KEY, getSelectedErc20Token, getTokens, migrateSelectedTokenStorageSetting } from "./helpers/TokenSettingsHelper";
 
@@ -124,7 +124,7 @@ function App(props) {
 
   const [networkSettingsModalOpen, setNetworkSettingsModalOpen] = useState(false);
   const [networkSettings, setNetworkSettings] = useLocalStorage(NETWORK_SETTINGS_STORAGE_KEY, {});
-  const networkSettingsHelper = networks ? new SettingsHelper(NETWORK_SETTINGS_STORAGE_KEY, networks, networkSettings, setNetworkSettings, netowrkSettingsTransformer) : undefined;
+  const networkSettingsHelper = networks ? new SettingsHelper(NETWORK_SETTINGS_STORAGE_KEY, networks, networkSettings, setNetworkSettings, getNetworkWithSettings) : undefined;
 
   // ToDo: Check if network settings can be stored in state, currently page refresh is used on network changes
   //const cachedNetwork = JSON.parse(window.localStorage.getItem(NETWORK_SETTINGS_STORAGE_KEY))?.selectedName;

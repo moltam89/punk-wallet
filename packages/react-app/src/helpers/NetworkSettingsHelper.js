@@ -1,4 +1,4 @@
-import { isEIP3091Explorer } from "./ChainHelper";
+import { getChain, isEIP3091Explorer } from "./ChainHelper";
 
 export const NETWORK_SETTINGS_STORAGE_KEY = "NetworkSettings";
 
@@ -8,8 +8,18 @@ export const getBLockExplorers = (chain) => chain.explorers.filter(explorer => i
 
 export const getBLockExplorer = (chain, name) => chain.explorers.find(blockExplorer => blockExplorer.name == name);
 
-export const netowrkSettingsTransformer = (networkSettings) => {
-    return networkSettings;
+export const getNetworkWithSettings = (network, networkSettings) => {
+    const networkWithSettings = {};
+
+    const selectedBlockExplorerName = networkSettings[SELECTED_BLOCK_EXPORER_NAME_KEY];
+
+    if (selectedBlockExplorerName) {
+        const blockExplorer = getBLockExplorer(getChain(network.chainId), selectedBlockExplorerName);
+
+        networkWithSettings.blockExplorer = blockExplorer.url + "/";
+    }
+
+    return {...network, ...networkWithSettings};
 }
 
 export const migrateSelectedNetworkStorageSetting = (networkSettingsHelper) => {
@@ -32,5 +42,5 @@ export const migrateSelectedNetworkStorageSetting = (networkSettingsHelper) => {
     catch (error) {
         console.error("Coudn't migrate selected token name setting", error);
     }
-
 }
+

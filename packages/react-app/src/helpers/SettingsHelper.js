@@ -15,13 +15,13 @@ const ITEMS_SETTINGS_DEFAULT_VALUE = {};
 const modalSettingsKeys = [INDEX_MAP_KEY, ITEMS_SETTINGS_KEY, REMOVED_NAMES_KEY];
 
 export class SettingsHelper {
-    constructor(storageKey, items, settings, setSettings, itemSettingsTransformer) {
+    constructor(storageKey, items, settings, setSettings, getItemWithSettings) {
         this.storageKey = storageKey;
         this.items = items;
         this.storedSettings = settings;
         this.settings = {...getInitialSettings(this.storageKey, this.items), ...this.storedSettings};
         this.setSettings = setSettings;
-        this.itemSettingsTransformer = itemSettingsTransformer;
+        this.getItemWithSettings = getItemWithSettings;
 
         const {sortedItems, removedItems, selectedItem} = splitItems(getAllItems(this.items, this.settings), this.settings);
 
@@ -67,13 +67,14 @@ export class SettingsHelper {
         return existingItem;
     }
 
-    getSelectedItem = (overrideWithItemSettings) => {
+    getSelectedItem = (getItemSettings) => {
         const selectedName = getSelectedName(this.settings);
 
-        let selectedItem = getAllItems(this.items, this.settings).find(item => item.name === selectedName);
+        const selectedItem = getAllItems(this.items, this.settings).find(item => item.name === selectedName);
 
-        if (overrideWithItemSettings) {
-            selectedItem = {...selectedItem, ...this.itemSettingsTransformer(this.getItemSettings(selectedItem))};
+        if (getItemSettings) {
+            return this.getItemWithSettings(selectedItem, this.getItemSettings(selectedItem));
+            //selectedItem = {...selectedItem, ...this.getItemWithSettings(this.getItemSettings(selectedItem))};
         }
 
         return selectedItem;
