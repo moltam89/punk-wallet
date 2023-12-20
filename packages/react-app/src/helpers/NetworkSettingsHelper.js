@@ -8,6 +8,10 @@ export const getBLockExplorers = (chain) => chain.explorers.filter(explorer => i
 
 export const getBLockExplorer = (chain, name) => chain.explorers.find(blockExplorer => blockExplorer.name == name);
 
+export const netowrkSettingsTransformer = (networkSettings) => {
+    return networkSettings;
+}
+
 export const migrateSelectedNetworkStorageSetting = (networkSettingsHelper) => {
     // Old code
     //const cachedNetwork = window.localStorage.getItem("network");
