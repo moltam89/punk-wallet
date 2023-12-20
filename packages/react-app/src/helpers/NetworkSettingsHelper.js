@@ -1,6 +1,6 @@
 import { getChain, isEIP3091Explorer } from "./ChainHelper";
 
-export const NETWORK_SETTINGS_STORAGE_KEY = "NetworkSettings";
+export const NETWORK_SETTINGS_STORAGE_KEY = "networkSettings";
 
 export const SELECTED_BLOCK_EXPORER_NAME_KEY = "selectedBlockExplorerName";
 
