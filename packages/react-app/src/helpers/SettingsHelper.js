@@ -165,7 +165,6 @@ const getAllItems = (items, settings) => items.concat(getCustomItems(settings));
 const getCustomItems = (settings) => settings[CUSTOM_ITEMS_KEY] ?? CUSTOM_ITEMS_DEFAULT_VALUE;
 
 const getItemsSettings = (settings) => {
-    console.log("???")
     return settings[ITEMS_SETTINGS_KEY] ?? ITEMS_SETTINGS_DEFAULT_VALUE;
 } 
 
