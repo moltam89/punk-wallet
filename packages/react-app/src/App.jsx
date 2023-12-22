@@ -1053,7 +1053,7 @@ function App(props) {
                 settingsModalOpen={setNetworkSettingsModalOpen}
                 itemCoreDisplay={(network) => <NetworkDisplay network={network}/>}
                 onChange={(value) => {
-                  setTargetNetwork(networks.find(network => network.name = value));
+                  setTargetNetwork(networks.find(network => network.name == value));
                   }
                 }       
                 optionStyle={{lineHeight:1.1}}
