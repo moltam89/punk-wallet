@@ -120,11 +120,21 @@ const web3Modal = new Web3Modal({
 function App(props) {
   /// 📡 What chain are your contracts deployed to? 
 
-  const networks = Object.values(NETWORKS);
+  console.log("Object.values(NETWORKS)", Object.values(NETWORKS));
+
+  //Object.values(NETWORKS).forEach((element) => console.log("xxx", element));
+                    const why = Object.values(NETWORKS).find(x => {
+                    console.log("xx", x);
+                    if (x.name == "base") {
+                      
+                      return true;
+                    }
+                  })
+                  console.log("why", why)
 
   const [networkSettingsModalOpen, setNetworkSettingsModalOpen] = useState(false);
   const [networkSettings, setNetworkSettings] = useLocalStorage(NETWORK_SETTINGS_STORAGE_KEY, {});
-  const networkSettingsHelper = networks ? new SettingsHelper(NETWORK_SETTINGS_STORAGE_KEY, networks, networkSettings, setNetworkSettings, getNetworkWithSettings) : undefined;
+  const networkSettingsHelper = Object.values(NETWORKS) ? new SettingsHelper(NETWORK_SETTINGS_STORAGE_KEY, Object.values(NETWORKS), networkSettings, setNetworkSettings, getNetworkWithSettings) : undefined;
 
   const [targetNetwork, setTargetNetwork] = useState(networkSettingsHelper.getSelectedItem(true));
   const [localProvider, setLocalProvider] = useState(new StaticJsonRpcProvider(targetNetwork.rpcUrl));
@@ -160,6 +170,8 @@ function App(props) {
 
   const tokenSettingsStorageKey = networkName + TOKEN_SETTINGS_STORAGE_KEY;
   const tokens = getTokens(targetNetwork?.nativeToken, erc20Tokens);
+  console.log("tokens", tokens);
+  console.log("targetNetwork", targetNetwork);
   const [tokenSettingsModalOpen, setTokenSettingsModalOpen] = useState(false);
   const [tokenSettings, setTokenSettings] = useLocalStorage(tokenSettingsStorageKey, {});
   const tokenSettingsHelper = tokens ? new SettingsHelper(tokenSettingsStorageKey, tokens, tokenSettings, setTokenSettings) : undefined;
@@ -1053,7 +1065,16 @@ function App(props) {
                 settingsModalOpen={setNetworkSettingsModalOpen}
                 itemCoreDisplay={(network) => <NetworkDisplay network={network}/>}
                 onChange={(value) => {
-                  setTargetNetwork(networks.find(network => network.name = value));
+
+                  const why = Object.values(NETWORKS).find(x => {
+                    if (x.name = value) {
+                      console.log(x, value);
+                      return true;
+                    }
+                  })
+                  console.log("why", why)
+
+                  setTargetNetwork(Object.values(NETWORKS).find(network => network.name = value));
                   }
                 }       
                 optionStyle={{lineHeight:1.1}}
