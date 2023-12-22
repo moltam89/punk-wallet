@@ -3,25 +3,11 @@ import React, { useEffect, useState } from "react";
 import { Select } from "antd";
 import { SettingOutlined } from "@ant-design/icons";
 
-export default function SelectorWithSettings({settingsHelper, itemCoreDisplay, settingsModalOpen, onChange, optionStyle, storageKey}) {
-    console.log("storageKey", storageKey);
-
-    const [selectedItem, setSelectedItem] = useState(settingsHelper.getSelectedItem());
-
-    //console.log("SelectorWithSettings", selectedItem)
-
-    if (selectedItem?.imgSrc) {
-        console.log("SelectorWithSettings", selectedItem, new Date(), settingsHelper)
-    }
-
+export default function SelectorWithSettings({settingsHelper, itemCoreDisplay, settingsModalOpen, onChange, optionStyle}) {
+    const selectedItem = settingsHelper.getSelectedItem();
     const selectedItemName = selectedItem ? selectedItem.name : settingsHelper.items[0].name;
 
     const [currentValue, setCurrentValue] = useState(selectedItemName);
-
-    useEffect(() => {
-        console.log("wwww", settingsHelper.getSelectedItem());
-        setSelectedItem(settingsHelper.getSelectedItem());
-    }, [settingsHelper]);
 
     useEffect(() => {
         // This is only needed once, after migrating an old storage key

@@ -127,8 +127,6 @@ function App(props) {
   const networkSettingsHelper = networks ? new SettingsHelper(NETWORK_SETTINGS_STORAGE_KEY, networks, networkSettings, setNetworkSettings, getNetworkWithSettings) : undefined;
 
   const [targetNetwork, setTargetNetwork] = useState(networkSettingsHelper.getSelectedItem(true));
-  console.log("targetNetwork", targetNetwork);
-
   const [localProvider, setLocalProvider] = useState(new StaticJsonRpcProvider(targetNetwork.rpcUrl));
 
   useEffect(() => {
@@ -165,7 +163,6 @@ function App(props) {
   const [tokenSettingsModalOpen, setTokenSettingsModalOpen] = useState(false);
   const [tokenSettings, setTokenSettings] = useLocalStorage(tokenSettingsStorageKey, {});
   const tokenSettingsHelper = tokens ? new SettingsHelper(tokenSettingsStorageKey, tokens, tokenSettings, setTokenSettings) : undefined;
-  console.log("tokenSettingsHelper", tokenSettingsHelper);
 
   useEffect(() => {
     migrateSelectedTokenStorageSetting(networkName, tokenSettingsHelper);
@@ -1056,7 +1053,7 @@ function App(props) {
                 settingsModalOpen={setNetworkSettingsModalOpen}
                 itemCoreDisplay={(network) => <NetworkDisplay network={network}/>}
                 onChange={(value) => {
-                  setTargetNetwork({...networks.find(network => network.name == value)});
+                  setTargetNetwork(networks.find(network => network.name = value));
                   }
                 }       
                 optionStyle={{lineHeight:1.1}}
@@ -1067,7 +1064,6 @@ function App(props) {
                 settingsHelper={tokenSettingsHelper}
                 settingsModalOpen={setTokenSettingsModalOpen}
                 itemCoreDisplay={(token) => <TokenDisplay token={token}/>}
-                storageKey={tokenSettingsHelper.storageKey}
               />}
             </div>
           </div>
