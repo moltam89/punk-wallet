@@ -115,7 +115,11 @@ const web3Modal = new Web3Modal({
   },
 });
 
+// 😬 Sorry for all the console logging
+const DEBUG = false;
 
+// 🛰 providers
+if (DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
 
 function App(props) {
   /// 📡 What chain are your contracts deployed to? 
@@ -143,12 +147,6 @@ function App(props) {
   const networkName = targetNetwork.name;
   const erc20Tokens = targetNetwork?.erc20Tokens;
 
-  // 😬 Sorry for all the console logging
-  const DEBUG = false;
-
-  // 🛰 providers
-  if (DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
-
 /*
   // 🏠 Your local provider is usually pointed at your local blockchain
   const localProviderUrl = targetNetwork.rpcUrl;
@@ -162,6 +160,7 @@ function App(props) {
   const tokens = getTokens(targetNetwork?.nativeToken, erc20Tokens);
   const [tokenSettingsModalOpen, setTokenSettingsModalOpen] = useState(false);
   const [tokenSettings, setTokenSettings] = useLocalStorage(tokenSettingsStorageKey, {});
+
   const tokenSettingsHelper = tokens ? new SettingsHelper(tokenSettingsStorageKey, tokens, tokenSettings, setTokenSettings) : undefined;
 
   useEffect(() => {

@@ -16,6 +16,11 @@ const modalSettingsKeys = [INDEX_MAP_KEY, ITEMS_SETTINGS_KEY, REMOVED_NAMES_KEY]
 
 export class SettingsHelper {
     constructor(storageKey, items, settings, setSettings, getItemWithSettings) {
+        if (storageKey.includes("Token")) {
+            //console.log("items", items);
+            //console.log("storageKey", storageKey);
+        }
+
         this.storageKey = storageKey;
         this.items = items;
         this.storedSettings = settings;
