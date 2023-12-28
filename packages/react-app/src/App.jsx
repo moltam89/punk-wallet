@@ -53,10 +53,6 @@ import { sendTransaction } from "./helpers/EIP1559Helper";
 
 import { getMemo, getNewMoneriumClient, getFilteredOrders, isValidIban, placeIbanOrder, isIbanAddressObjectValid } from "./helpers/MoneriumHelper";
 
-import { SettingsHelper } from "./helpers/SettingsHelper";
-
-import { getSelectedErc20Token, getStorageKey, getTokens, migrateSelectedTokenStorageSetting } from "./helpers/TokenSettingsHelper";
-
 const { confirm } = Modal;
 
 const { ethers } = require("ethers");
@@ -137,20 +133,11 @@ const web3Modal = new Web3Modal({
 });
 
 const networkName = targetNetwork.name;
-const erc20Tokens = targetNetwork?.erc20Tokens;
-const tokens = getTokens(targetNetwork?.nativeToken, erc20Tokens);
-const tokenSettingsStorageKey = networkName + getStorageKey();
 
 function App(props) {
-  const [tokenSettingsModalOpen, setTokenSettingsModalOpen] = useState(false);
-  const [tokenSettings, setTokenSettings] = useLocalStorage(tokenSettingsStorageKey, {});
-  const tokenSettingsHelper = tokens ? new SettingsHelper(tokenSettingsStorageKey, tokens, tokenSettings, setTokenSettings) : undefined;
+  const [selectedErc20Token, setSelectedErc20Token] = useState();
 
-  useEffect(() => {
-    migrateSelectedTokenStorageSetting(networkName, tokenSettingsHelper);
-  }, []);
-
-  const selectedErc20Token = tokenSettingsHelper ? getSelectedErc20Token(tokenSettingsHelper.getSelectedItem(), erc20Tokens.concat(tokenSettingsHelper.getCustomItems())): undefined;
+  //const selectedErc20Token = tokenSettingsHelper ? getSelectedErc20Token(tokenSettingsHelper.getSelectedItem(), erc20Tokens.concat(tokenSettingsHelper.getCustomItems())): undefined;
 
   //const [isWalletModalVisible, setIsWalletModalVisible] = useState(false);
   //const [walletModalData, setWalletModalData] = useState();
@@ -894,20 +881,6 @@ function App(props) {
 
   return (
     <div className="App">
-
-      {tokenSettingsHelper && 
-        <SettingsModal
-          settingsHelper={tokenSettingsHelper}
-          itemCoreDisplay={(token) => <TokenDisplay token={token} divStyle={{display: "flex", alignItems: "center", justifyContent: "center"}} spanStyle={{paddingLeft:"0.2em"}}/>}
-          itemDetailedDisplay={(tokenSettingsHelper, token, tokenCoreDisplay, network, setItemDetailed) => <TokenDetailedDisplay tokenSettingsHelper={tokenSettingsHelper} token={token} tokenCoreDisplay={tokenCoreDisplay} network={network} setItemDetailed={setItemDetailed} />}
-          itemImportDisplay={(tokenSettingsHelper, tokenCoreDisplay, tokenDetailedDisplay, network, setImportView) => <TokenImportDisplay tokenSettingsHelper={tokenSettingsHelper} tokenCoreDisplay={tokenCoreDisplay} tokenDetailedDisplay={tokenDetailedDisplay} network={network} setImportView={setImportView}/>}
-          modalOpen={tokenSettingsModalOpen}
-          setModalOpen={setTokenSettingsModalOpen}
-          title={"Token Settings"} // ToDo: Reuse TOKEN_SETTINGS_STORAGE_KEY and colored network name
-          network={targetNetwork}
-        />
-      }
-
       <div className="site-page-header-ghost-wrapper">
         <Header
           extra={[
@@ -965,12 +938,10 @@ function App(props) {
         localProvider={localProvider}
         address={address}
         gasPrice={gasPrice}
-        selectedErc20Token={selectedErc20Token}
         targetNetwork={targetNetwork}
         price={price}
-        erc20Tokens={erc20Tokens}
-        tokenSettingsHelper={tokenSettingsHelper}
-        setTokenSettingsModalOpen={setTokenSettingsModalOpen}
+        selectedErc20Token={selectedErc20Token}
+        setSelectedErc20Token={setSelectedErc20Token}
       />
 
       {address && (

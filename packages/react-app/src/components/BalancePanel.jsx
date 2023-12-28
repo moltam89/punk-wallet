@@ -4,12 +4,13 @@ import { formatEther, parseEther } from "@ethersproject/units";
 
 import { Button} from "antd";
 
-import { Balance, ERC20Balance, NetworkDetailedDisplay, NetworkDisplay, SelectorWithSettings, SettingsModal, TokenDisplay} from "./";
+import { Balance, ERC20Balance, NetworkDetailedDisplay, NetworkDisplay, SelectorWithSettings, SettingsModal, TokenDetailedDisplay, TokenDisplay, TokenImportDisplay} from "./";
 
 import { useBalance, useLocalStorage } from "../hooks";
 
 import { Transactor } from "../helpers";
 import { getChain} from "../helpers/ChainHelper";
+import { getSelectedErc20Token, getStorageKey, getTokens, migrateSelectedTokenStorageSetting } from "../helpers/TokenSettingsHelper";
 import { SELECTED_BLOCK_EXPORER_NAME_KEY, getBLockExplorer, migrateSelectedNetworkStorageSetting } from "../helpers/NetworkSettingsHelper";
 import { SettingsHelper } from "../helpers/SettingsHelper";
 
@@ -18,13 +19,28 @@ import { NETWORKS } from "../constants";
 const networkSettingsStorageKey = "networkSettings";
 const networks = Object.values(NETWORKS);
 
-export default function BalancePanel( {localProvider, address, gasPrice, selectedErc20Token, targetNetwork, price, erc20Tokens, tokenSettingsHelper, setTokenSettingsModalOpen } ) {
+export default function BalancePanel( {localProvider, address, gasPrice, targetNetwork, price, selectedErc20Token, setSelectedErc20Token } ) {
+    const networkName = targetNetwork.networkName;
+
     const [networkSettingsModalOpen, setNetworkSettingsModalOpen] = useState(false);
     const [networkSettings, setNetworkSettings] = useLocalStorage(networkSettingsStorageKey, {});
     const networkSettingsHelper = networks ? new SettingsHelper(networkSettingsStorageKey, networks, networkSettings, setNetworkSettings) : undefined;
 
+    const erc20Tokens = targetNetwork?.erc20Tokens;
+    const tokens = getTokens(targetNetwork?.nativeToken, erc20Tokens);
+    const tokenSettingsStorageKey = networkName + getStorageKey();
+
+    const [tokenSettingsModalOpen, setTokenSettingsModalOpen] = useState(false);
+    const [tokenSettings, setTokenSettings] = useLocalStorage(tokenSettingsStorageKey, {});
+    const tokenSettingsHelper = tokens ? new SettingsHelper(tokenSettingsStorageKey, tokens, tokenSettings, setTokenSettings) : undefined;
+
+    if (tokenSettingsHelper) {
+        setSelectedErc20Token(getSelectedErc20Token(tokenSettingsHelper.getSelectedItem(), erc20Tokens.concat(tokenSettingsHelper.getCustomItems())));
+    }
+
     useEffect(() => {
         migrateSelectedNetworkStorageSetting(networkSettingsHelper);
+        migrateSelectedTokenStorageSetting(networkName, tokenSettingsHelper);
     }, []);
 
     if (networkSettingsHelper) {
@@ -88,6 +104,19 @@ export default function BalancePanel( {localProvider, address, gasPrice, selecte
                   title={"Network Settings"} 
                 />
             }
+
+            {tokenSettingsHelper && 
+                <SettingsModal
+                    settingsHelper={tokenSettingsHelper}
+                    itemCoreDisplay={(token) => <TokenDisplay token={token} divStyle={{display: "flex", alignItems: "center", justifyContent: "center"}} spanStyle={{paddingLeft:"0.2em"}}/>}
+                    itemDetailedDisplay={(tokenSettingsHelper, token, tokenCoreDisplay, network, setItemDetailed) => <TokenDetailedDisplay tokenSettingsHelper={tokenSettingsHelper} token={token} tokenCoreDisplay={tokenCoreDisplay} network={network} setItemDetailed={setItemDetailed} />}
+                    itemImportDisplay={(tokenSettingsHelper, tokenCoreDisplay, tokenDetailedDisplay, network, setImportView) => <TokenImportDisplay tokenSettingsHelper={tokenSettingsHelper} tokenCoreDisplay={tokenCoreDisplay} tokenDetailedDisplay={tokenDetailedDisplay} network={network} setImportView={setImportView}/>}
+                    modalOpen={tokenSettingsModalOpen}
+                    setModalOpen={setTokenSettingsModalOpen}
+                    title={"Token Settings"} // ToDo: Reuse TOKEN_SETTINGS_STORAGE_KEY and colored network name
+                    network={targetNetwork}
+                />
+                }
 
             <div
                 style={{ clear: "both", opacity: yourLocalBalance ? 1 : 0.2, width: 500, margin: "auto", position: "relative" }}
