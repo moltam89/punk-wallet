@@ -284,8 +284,6 @@ function App(props) {
   // 🏗 scaffold-eth is full of handy hooks like this one to get your balance:
   const yourLocalBalance = useBalance(localProvider, address);
 
-  const balance = yourLocalBalance && formatEther(yourLocalBalance);
-
   const [showHistory, setShowHistory] = useLocalStorage("showHistory", true);
 
   const [moneriumClient, setMoneriumClient] = useState(getNewMoneriumClient());
