@@ -55,10 +55,7 @@ import { getMemo, getNewMoneriumClient, getFilteredOrders, isValidIban, placeIba
 
 import { SettingsHelper } from "./helpers/SettingsHelper";
 
-import { SELECTED_BLOCK_EXPORER_NAME_KEY, getBLockExplorer, migrateSelectedNetworkStorageSetting } from "./helpers/NetworkSettingsHelper";
 import { getSelectedErc20Token, getStorageKey, getTokens, migrateSelectedTokenStorageSetting } from "./helpers/TokenSettingsHelper";
-
-import { getChain} from "./helpers/ChainHelper";
 
 const { confirm } = Modal;
 
@@ -144,33 +141,13 @@ const erc20Tokens = targetNetwork?.erc20Tokens;
 const tokens = getTokens(targetNetwork?.nativeToken, erc20Tokens);
 const tokenSettingsStorageKey = networkName + getStorageKey();
 
-const networks = Object.values(NETWORKS);
-
 function App(props) {
-  const [networkSettingsModalOpen, setNetworkSettingsModalOpen] = useState(false);
-  const [networkSettings, setNetworkSettings] = useLocalStorage(networkSettingsStorageKey, {});
-  const networkSettingsHelper = networks ? new SettingsHelper(networkSettingsStorageKey, networks, networkSettings, setNetworkSettings) : undefined;
-
-  if (networkSettingsHelper) {
-    const selectedBlockExplorerName = networkSettingsHelper.getItemSettings(targetNetwork)[SELECTED_BLOCK_EXPORER_NAME_KEY];
-
-    if (selectedBlockExplorerName) {
-      const selectedBlockExplorer = getBLockExplorer(getChain(targetNetwork.chainId), selectedBlockExplorerName);
-
-      if (selectedBlockExplorer) {
-        blockExplorer = selectedBlockExplorer.url + "/";
-        targetNetwork.blockExplorer = selectedBlockExplorer.url + "/";
-      }
-    }
-  }
-
   const [tokenSettingsModalOpen, setTokenSettingsModalOpen] = useState(false);
   const [tokenSettings, setTokenSettings] = useLocalStorage(tokenSettingsStorageKey, {});
   const tokenSettingsHelper = tokens ? new SettingsHelper(tokenSettingsStorageKey, tokens, tokenSettings, setTokenSettings) : undefined;
 
   useEffect(() => {
     migrateSelectedTokenStorageSetting(networkName, tokenSettingsHelper);
-    migrateSelectedNetworkStorageSetting(networkSettingsHelper);
   }, []);
 
   const selectedErc20Token = tokenSettingsHelper ? getSelectedErc20Token(tokenSettingsHelper.getSelectedItem(), erc20Tokens.concat(tokenSettingsHelper.getCustomItems())): undefined;
@@ -917,16 +894,6 @@ function App(props) {
 
   return (
     <div className="App">
-      {networkSettingsHelper && 
-        <SettingsModal
-          settingsHelper={networkSettingsHelper}
-          itemCoreDisplay={(network) => <NetworkDisplay network={network}/>}
-          itemDetailedDisplay={(networkSettingsHelper, network, networkCoreDisplay, setItemDetailed) => <NetworkDetailedDisplay networkSettingsHelper={networkSettingsHelper} network={network} networkCoreDisplay={networkCoreDisplay} setItemDetailed={setItemDetailed} />}
-          modalOpen={networkSettingsModalOpen}
-          setModalOpen={setNetworkSettingsModalOpen}
-          title={"Network Settings"} 
-        />
-      }
 
       {tokenSettingsHelper && 
         <SettingsModal
@@ -1002,8 +969,6 @@ function App(props) {
         targetNetwork={targetNetwork}
         price={price}
         erc20Tokens={erc20Tokens}
-        networkSettingsHelper={networkSettingsHelper}
-        setNetworkSettingsModalOpen={setNetworkSettingsModalOpen}
         tokenSettingsHelper={tokenSettingsHelper}
         setTokenSettingsModalOpen={setTokenSettingsModalOpen}
       />
