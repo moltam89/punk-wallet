@@ -12,8 +12,7 @@ import {
   Account,
   Address,
   AddressInput,
-  Balance,
-  ERC20Balance,
+  BalancePanel,
   ERC20Input,
   SelectorWithSettings,
   EtherInput,
@@ -277,12 +276,6 @@ function App(props) {
 
   // The transactor wraps transactions and provides notificiations
   const tx = Transactor(userProvider, gasPrice, undefined, injectedProvider);
-
-  // Faucet Tx can be used to send funds from the faucet
-  const faucetTx = Transactor(localProvider, gasPrice);
-
-  // 🏗 scaffold-eth is full of handy hooks like this one to get your balance:
-  const yourLocalBalance = useBalance(localProvider, address);
 
   const [showHistory, setShowHistory] = useLocalStorage("showHistory", true);
 
@@ -846,35 +839,7 @@ function App(props) {
     setRoute(window.location.pathname);
   }, [setRoute]);
 
-  let faucetHint = "";
   const faucetAvailable = localProvider && localProvider.connection && networkName == "localhost";
-
-  const [faucetClicked, setFaucetClicked] = useState(false);
-  if (
-    !faucetClicked &&
-    localProvider &&
-    localProvider._network &&
-    localProvider._network.chainId == 31337 &&
-    yourLocalBalance &&
-    formatEther(yourLocalBalance) <= 0
-  ) {
-    faucetHint = (
-      <div style={{ padding: 16 }}>
-        <Button
-          type="primary"
-          onClick={() => {
-            faucetTx({
-              to: address,
-              value: parseEther("0.01"),
-            });
-            setFaucetClicked(true);
-          }}
-        >
-          💰 Grab funds from the faucet ⛽️
-        </Button>
-      </div>
-    );
-  }
 
   let startingAddress = "";
   if (window.location.pathname) {
@@ -1029,53 +994,19 @@ function App(props) {
 
       {/* ✏️ Edit the header and change the title to your project name */}
 
-      <div
-        style={{ clear: "both", opacity: yourLocalBalance ? 1 : 0.2, width: 500, margin: "auto", position: "relative" }}
-      >
-        <div>
-          {selectedErc20Token ?
-            <ERC20Balance
-              token={selectedErc20Token}
-              rpcURL={targetNetwork.rpcUrl}
-              size={12 + window.innerWidth / 16}
-              address={address}
-            />
-            :
-            <Balance
-              value={yourLocalBalance}
-              size={12 + window.innerWidth / 16}
-              price={price} />
-          }
-        </div>
-
-        <span style={{ verticalAlign: "middle" }}>
-          <div style={{ display: "flex", justifyContent: erc20Tokens ? "space-evenly" : "center", alignItems: "center" }}>
-            <div>
-              <SelectorWithSettings
-                settingsHelper={networkSettingsHelper}
-                settingsModalOpen={setNetworkSettingsModalOpen}
-                itemCoreDisplay={(network) => <NetworkDisplay network={network}/>}
-                onChange={() => setTimeout(
-                    () => {
-                      window.location.reload();
-                    },
-                    1
-                  )
-                }       
-                optionStyle={{lineHeight:1.1}}
-              />
-            </div>
-            <div> {tokenSettingsHelper &&
-              <SelectorWithSettings
-                settingsHelper={tokenSettingsHelper}
-                settingsModalOpen={setTokenSettingsModalOpen}
-                itemCoreDisplay={(token) => <TokenDisplay token={token}/>}
-              />}
-            </div>
-          </div>
-          {faucetHint}
-        </span>
-      </div>
+      <BalancePanel
+        localProvider={localProvider}
+        address={address}
+        gasPrice={gasPrice}
+        selectedErc20Token={selectedErc20Token}
+        targetNetwork={targetNetwork}
+        price={price}
+        erc20Tokens={erc20Tokens}
+        networkSettingsHelper={networkSettingsHelper}
+        setNetworkSettingsModalOpen={setNetworkSettingsModalOpen}
+        tokenSettingsHelper={tokenSettingsHelper}
+        setTokenSettingsModalOpen={setTokenSettingsModalOpen}
+      />
 
       {address && (
         <div style={{ padding: 16, cursor: "pointer", backgroundColor: "#FFFFFF", width: 420, margin: "auto" }}>

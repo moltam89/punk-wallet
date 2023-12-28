@@ -2,6 +2,7 @@ export { default as Account } from "./Account";
 export { default as Address } from "./Address";
 export { default as AddressInput } from "./AddressInput";
 export { default as Balance } from "./Balance";
+export { default as BalancePanel } from "./BalancePanel";
 export { default as Blockie } from "./Blockie";
 export { default as BytesStringInput } from "./BytesStringInput";
 export { default as ERC20Balance } from "./ERC20Balance";
