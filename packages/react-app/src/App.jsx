@@ -64,7 +64,7 @@ import { getChain} from "./helpers/ChainHelper";
 
 const { confirm } = Modal;
 
-const { ethers, BigNumber } = require("ethers");
+const { ethers } = require("ethers");
 
 const { OrderState } = require("@monerium/sdk");
 
@@ -256,15 +256,10 @@ function App(props) {
   console.log("ethprice",ethprice)*/
 
   /* 💵 This hook will get the price of ETH from 🦄 Uniswap: */
-  //const price = useExchangePrice(targetNetwork, mainnetProvider);
-  const price = 2016.61;
-  console.log("price", price);
+  const price = useExchangePrice(targetNetwork, mainnetProvider);
 
   /* 🔥 This hook will get the price of Gas from ⛽️ EtherGasStation */
-  //const gasPrice = useGasPrice(targetNetwork, "fast", localProvider);
-  const gasPrice = BigNumber.from("0x082537f563");
-  console.log("gasPrice", gasPrice);
-
+  const gasPrice = useGasPrice(targetNetwork, "fast", localProvider);
   // Use your injected provider from 🦊 Metamask or if you don't have it then instantly generate a 🔥 burner wallet.
   const userProvider = useUserProvider(injectedProvider, localProvider);
   const address = useUserAddress(userProvider);
@@ -285,9 +280,7 @@ function App(props) {
   const faucetTx = Transactor(localProvider, gasPrice);
 
   // 🏗 scaffold-eth is full of handy hooks like this one to get your balance:
-  //const yourLocalBalance = useBalance(localProvider, address);
-  const yourLocalBalance = BigNumber.from("0x60f3d3afc7f7b7");
-  //console.log("yourLocalBalance", yourLocalBalance)
+  const yourLocalBalance = useBalance(localProvider, address);
 
   const balance = yourLocalBalance && formatEther(yourLocalBalance);
 
@@ -715,9 +708,7 @@ function App(props) {
 */
 
   // Just plug in different 🛰 providers to get your balance on different chains:
-  //const yourMainnetBalance = useBalance(mainnetProvider, address);
-  const yourMainnetBalance = BigNumber.from("0x60f3d3afc7f7b7");
-  //console.log("yourMainnetBalance", yourMainnetBalance);
+  const yourMainnetBalance = useBalance(mainnetProvider, address);
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");

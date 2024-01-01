@@ -56,8 +56,6 @@ const PasteButton = ({ stateSetter }) => {
   };
 
 export default function AddressInput(props) {
-  console.log("AddressInput");
-
   const { ensProvider, setAmount, setToAddress, ibanAddressObject, setIbanAddressObject, isIbanTransferReady } = props;
 
   const [value, setValue] = useState(props.address);
