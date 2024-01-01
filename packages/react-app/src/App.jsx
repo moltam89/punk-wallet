@@ -131,9 +131,6 @@ function App(props) {
   const networkSettingsHelper = networks ? new SettingsHelper(NETWORK_SETTINGS_STORAGE_KEY, networks, networkSettings, setNetworkSettings, getNetworkWithSettings) : undefined;
 
   const [targetNetwork, setTargetNetwork] = useState(networkSettingsHelper.getSelectedItem(true));
-
-  const localProvider = new StaticJsonRpcProvider(targetNetwork.rpcUrl);
-  /*
   const [localProvider, setLocalProvider] = useState(new StaticJsonRpcProvider(targetNetwork.rpcUrl));
 
   useEffect(() => {
@@ -144,7 +141,6 @@ function App(props) {
     console.log("new provider", localProvider)
     setLocalProvider(new StaticJsonRpcProvider(targetNetwork.rpcUrl));
   }, [targetNetwork]);
-  */
 
   // 🔭 block explorer URL
   const blockExplorer = targetNetwork.blockExplorer;
