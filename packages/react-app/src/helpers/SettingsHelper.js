@@ -164,9 +164,7 @@ const getAllItems = (items, settings) => items.concat(getCustomItems(settings));
 
 const getCustomItems = (settings) => settings[CUSTOM_ITEMS_KEY] ?? CUSTOM_ITEMS_DEFAULT_VALUE;
 
-const getItemsSettings = (settings) => {
-    return settings[ITEMS_SETTINGS_KEY] ?? ITEMS_SETTINGS_DEFAULT_VALUE;
-} 
+const getItemsSettings = (settings) => settings[ITEMS_SETTINGS_KEY] ?? ITEMS_SETTINGS_DEFAULT_VALUE;
 
 const getIndexMap = (settings) => settings[INDEX_MAP_KEY];
 
