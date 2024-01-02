@@ -181,7 +181,7 @@ const getInitialSettings = (storageKey, items) => {
         [REMOVED_NAMES_KEY]: [],
         [SELECTED_NAME_KEY]: items[0].name,
         [CUSTOM_ITEMS_KEY]: CUSTOM_ITEMS_DEFAULT_VALUE,
-        [ITEMS_SETTINGS_KEY]: {},
+        [ITEMS_SETTINGS_KEY]: ITEMS_SETTINGS_DEFAULT_VALUE,
     }
 }
 
