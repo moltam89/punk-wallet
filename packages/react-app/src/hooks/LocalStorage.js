@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 // Hook from useHooks! (https://usehooks.com/useLocalStorage/)
 
-
 export default function useLocalStorage(key, initialValue, ttl) {
 
   // State to store our value
@@ -9,11 +8,9 @@ export default function useLocalStorage(key, initialValue, ttl) {
   const [storedValue, setStoredValue] = useState(() => getItemFromLocalStorage(key, initialValue, ttl));
 
   const prevKeyRef = useRef(key);
-  const prevInitialValueRef = useRef(initialValue);
-  const prevTTLRef = useRef(ttl);
 
   useEffect(() => {
-    if ((prevKeyRef.current == key) && (prevInitialValueRef.current == initialValue) && (prevTTLRef.current == ttl)) {
+    if (prevKeyRef.current == key) {
       return;
     }
 
