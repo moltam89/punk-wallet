@@ -24,7 +24,7 @@ export const getNetworkWithSettings = (network, networkSettings) => {
 
 export const migrateSelectedNetworkStorageSetting = (networkSettingsHelper) => {
     // Old code
-    //const cachedNetwork = window.localStorage.getItem("network");
+    // const cachedNetwork = window.localStorage.getItem("network");
 
     try {
         const oldKey = "network";
