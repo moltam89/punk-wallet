@@ -8,9 +8,10 @@ const SELECTED_NAME_KEY = "selectedName";
 // that they don't exist yet for someone
 const CUSTOM_ITEMS_KEY = "customItems";
 const CUSTOM_ITEMS_DEFAULT_VALUE = [];
-
 const ITEMS_SETTINGS_KEY = "itemSettings";
 const ITEMS_SETTINGS_DEFAULT_VALUE = {};
+
+const ITEM_SETTINGS_DEFAULT_VALUE = {};
 
 const modalSettingsKeys = [INDEX_MAP_KEY, ITEMS_SETTINGS_KEY, REMOVED_NAMES_KEY];
 
@@ -72,9 +73,8 @@ export class SettingsHelper {
 
         const selectedItem = getAllItems(this.items, this.settings).find(item => item.name === selectedName);
 
-        if (getItemSettings) {
+        if (getItemSettings && this.getItemWithSettings) {
             return this.getItemWithSettings(selectedItem, this.getItemSettings(selectedItem));
-            //selectedItem = {...selectedItem, ...this.getItemWithSettings(this.getItemSettings(selectedItem))};
         }
 
         return selectedItem;
@@ -122,7 +122,7 @@ export class SettingsHelper {
         return updateSettings(this.settings, this.setSettings);
     }
 
-    getItemSettings = (item) => getItemsSettings(this.settings)[item.name] ?? {};
+    getItemSettings = (item) => getItemsSettings(this.settings)[item.name] ?? ITEM_SETTINGS_DEFAULT_VALUE;
 
     updateIndexMap = (item, direction) => {
         const itemIndex = this.sortedItems.indexOf(item);
