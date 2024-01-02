@@ -56,7 +56,7 @@ import { getMemo, getNewMoneriumClient, getFilteredOrders, isValidIban, placeIba
 
 import { SettingsHelper } from "./helpers/SettingsHelper";
 
-import { NETWORK_SETTINGS_STORAGE_KEY, SELECTED_BLOCK_EXPORER_NAME_KEY, getBLockExplorer, migrateSelectedNetworkStorageSetting, getNetworkWithSettings } from "./helpers/NetworkSettingsHelper";
+import { NETWORK_SETTINGS_STORAGE_KEY, SELECTED_BLOCK_EXPORER_NAME_KEY, migrateSelectedNetworkStorageSetting, getNetworkWithSettings } from "./helpers/NetworkSettingsHelper";
 
 import { TOKEN_SETTINGS_STORAGE_KEY, getSelectedErc20Token, getTokens, migrateSelectedTokenStorageSetting } from "./helpers/TokenSettingsHelper";
 
