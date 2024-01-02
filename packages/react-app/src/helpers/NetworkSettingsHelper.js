@@ -1,12 +1,8 @@
-import { getChain, isEIP3091Explorer } from "./ChainHelper";
+import { getBLockExplorer, getChain } from "./ChainHelper";
 
 export const NETWORK_SETTINGS_STORAGE_KEY = "networkSettings";
 
 export const SELECTED_BLOCK_EXPORER_NAME_KEY = "selectedBlockExplorerName";
-
-export const getBLockExplorers = (chain) => chain.explorers.filter(explorer => isEIP3091Explorer(explorer));
-
-export const getBLockExplorer = (chain, name) => chain.explorers.find(blockExplorer => blockExplorer.name == name);
 
 export const getNetworkWithSettings = (network, networkSettings) => {
     const networkWithSettings = {};

@@ -1,6 +1,10 @@
+export const getBLockExplorer = (chain, name) => getBLockExplorers(chain).find(blockExplorer => blockExplorer.name == name);
+
+export const getBLockExplorers = (chain) => chain.explorers.filter(explorer => isEIP3091Explorer(explorer));
+
 export const getChain = (chainId) => chains.find(chain => chain.chainId == chainId)
 
-export const isEIP3091Explorer = (explorer) => explorer.standard == "EIP3091";
+const isEIP3091Explorer = (explorer) => explorer.standard == "EIP3091";
 
 // This chain list is from
 // https://github.com/ethereum-lists/

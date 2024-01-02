@@ -3,8 +3,8 @@ import React, { useState } from "react";
 import { Button, Select, Tooltip } from 'antd';
 import { DeleteOutlined } from "@ant-design/icons";
 
-import { getChain  } from "../helpers/ChainHelper";
-import { SELECTED_BLOCK_EXPORER_NAME_KEY, getBLockExplorer, getBLockExplorers  } from "../helpers/NetworkSettingsHelper";
+import { getBLockExplorer, getBLockExplorers, getChain } from "../helpers/ChainHelper";
+import { SELECTED_BLOCK_EXPORER_NAME_KEY } from "../helpers/NetworkSettingsHelper";
 
 export default function NetworkDetailedDisplay({ networkSettingsHelper, network, networkCoreDisplay, setItemDetailed }) {
     const chain = getChain(network.chainId);
