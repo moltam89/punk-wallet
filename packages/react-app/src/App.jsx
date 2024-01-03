@@ -118,14 +118,9 @@ const web3Modal = new Web3Modal({
 // 😬 Sorry for all the console logging
 const DEBUG = false;
 
-// 🛰 providers
-if (DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
+const networks = Object.values(NETWORKS);
 
 function App(props) {
-  /// 📡 What chain are your contracts deployed to? 
-
-  const networks = Object.values(NETWORKS);
-
   const [networkSettingsModalOpen, setNetworkSettingsModalOpen] = useState(false);
   const [networkSettings, setNetworkSettings] = useLocalStorage(NETWORK_SETTINGS_STORAGE_KEY, {});
   const networkSettingsHelper = networks ? new SettingsHelper(NETWORK_SETTINGS_STORAGE_KEY, networks, networkSettings, setNetworkSettings, getNetworkWithSettings) : undefined;
@@ -135,10 +130,8 @@ function App(props) {
 
   useEffect(() => {
     if (localProvider?.connection?.url == targetNetwork.rpcUrl) {
-      console.log("old provider")
       return;
     }
-    console.log("new provider", localProvider)
     setLocalProvider(new StaticJsonRpcProvider(targetNetwork.rpcUrl));
   }, [targetNetwork]);
 
@@ -146,15 +139,6 @@ function App(props) {
   const blockExplorer = targetNetwork.blockExplorer;
   const networkName = targetNetwork.name;
   const erc20Tokens = targetNetwork?.erc20Tokens;
-
-/*
-  // 🏠 Your local provider is usually pointed at your local blockchain
-  const localProviderUrl = targetNetwork.rpcUrl;
-  // as you deploy to other networks you can set REACT_APP_PROVIDER=https://dai.poa.network in packages/react-app/.env
-  const localProviderUrlFromEnv = process.env.REACT_APP_PROVIDER ? process.env.REACT_APP_PROVIDER : localProviderUrl;
-  if (DEBUG) console.log("🏠 Connecting to provider:", localProviderUrlFromEnv);
-  const localProvider = new StaticJsonRpcProvider(localProviderUrlFromEnv);
-*/
 
   const tokenSettingsStorageKey = networkName + TOKEN_SETTINGS_STORAGE_KEY;
   const tokens = getTokens(targetNetwork?.nativeToken, erc20Tokens);
