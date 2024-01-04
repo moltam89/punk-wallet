@@ -6,6 +6,7 @@ export default function useExchangePrice(targetNetwork, mainnetProvider, pollTim
   const [price, setPrice] = useState(0);
 
   useEffect(() => {
+    setPrice(0);
     pollPrice();
   }, [targetNetwork]);
 

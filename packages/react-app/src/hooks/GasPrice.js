@@ -8,6 +8,7 @@ export default function useGasPrice(targetNetwork, speed, providerToAsk) {
   const [gasPrice, setGasPrice] = useState();
 
   useEffect(() => {
+    setGasPrice();
     loadGasPrice();
   }, [targetNetwork]);
 
