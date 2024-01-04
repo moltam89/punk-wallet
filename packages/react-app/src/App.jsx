@@ -137,6 +137,7 @@ function App(props) {
 
   // 🔭 block explorer URL
   const blockExplorer = targetNetwork.blockExplorer;
+
   const networkName = targetNetwork.name;
   const erc20Tokens = targetNetwork?.erc20Tokens;
 
