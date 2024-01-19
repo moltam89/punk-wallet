@@ -4,7 +4,7 @@ import { Radio, Select, Space } from "antd";
 
 import { NETWORKS } from "../constants";
 
-import { Punk } from "./";
+import { Blockie, Punk } from "./";
 
 import {
   capitalizeFirstLetter,
@@ -42,7 +42,7 @@ export default function MoneriumCrossChainAddressSelector({
           size="large"
           //defaultValue={getShortAddress(targetAddress)}
           defaultValue={() => punkWithShortAddress(targetAddress, optionSize)}
-          style={{ width: 195}}
+          style={{ width: 195 }}
           listHeight={1024}
           onChange={value => setTargetAddress(value)}
         >
@@ -62,19 +62,30 @@ const radio = networkName => {
 };
 
 const option = address => (
-  <Select.Option key={address} value={address} style={{lineHeight:2.5}}>
+  <Select.Option key={address} value={address} style={{ lineHeight: 2.5 }}>
     {punkWithShortAddress(address, optionSize)}
   </Select.Option>
 );
 
 const punkWithShortAddress = (address, size = 32) => (
-  <div style={{ display: "flex", justifyContent: "center", alignItems: "center", fontSize: size}}>
-    <div style={{ flexGrow:1}}>
-      <Punk address={address} size={size + 8} />
+  <>
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: 222,
+        margin: "auto",
+        position: "",
+      }}
+    >
+      <div style={{ position: "absolute", opacity: "0.5", width: size + 8, height: size + 8, backgroundColor: "red" }}>
+        <Blockie address={address} scale={(11.5 * 8) / (size + 8)} />
+      </div>
+      <div style={{ position: "absolute", backgroundColor: "" }}>
+        <Punk address={address} size={size + 8} />
+      </div>
     </div>
-
-    <div style={{ flexGrow:2, backgroundColor:""}}>
-      {getShortAddress(address)}
-    </div>
-  </div>
+    <div style={{ flexGrow: 2, backgroundColor: "" }}>{getShortAddress(address)}</div>
+  </>
 );
