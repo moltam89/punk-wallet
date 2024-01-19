@@ -7,9 +7,9 @@ import moment from "moment";
 
 import { useLocalStorage } from "../hooks";
 
-import { LogoOnLogo, TokenDisplay } from "./";
+import { LogoOnLogo, TokenDisplay, Punk } from "./";
 
-import { getShortAddress } from "../helpers/MoneriumHelper";
+import { getNetworkChainId, getShortAddress } from "../helpers/MoneriumHelper";
 
 import { NETWORKS } from "../constants";
 
@@ -17,12 +17,8 @@ const { BigNumber, ethers } = require("ethers");
 const { OrderState, OrderKind } = require("@monerium/sdk");
 
 export default function TransactionDisplay({
-  status,
+  moneriumOrder,
   toAddress,
-  iban,
-  name,
-  memo,
-  kind,
   txHash,
   txDisplayName = "tx",
   amount = 0,
@@ -34,20 +30,24 @@ export default function TransactionDisplay({
   showClearButton,
   clearButtonAction,
 }) {
+  const [dateDisplayMode, setDateDisplayMode] = useLocalStorage("dateDisplayMode", false);
+
+  const status = moneriumOrder?.meta.state;
+  const iban = moneriumOrder?.counterpart?.identifier?.iban;
+  const name = moneriumOrder?.counterpart?.details?.name;
+  const memo = moneriumOrder?.memo;
+  const kind = moneriumOrder?.kind;
+
+  const crossChainName = moneriumOrder?.counterpart?.identifier?.chain;
+  const crossChainTargetAddress = moneriumOrder?.counterpart?.identifier?.address;
+  const currentPunkAddress = moneriumOrder?.address;
+
+  const isCrossChainSameAddress = currentPunkAddress == crossChainTargetAddress;
+
   let digits = 2;
   if (erc20TokenName == "WETH") {
     digits = 4;
   }
-
-  const [dateDisplayMode, setDateDisplayMode] = useLocalStorage("dateDisplayMode", false);
-
-  // ToDo: Reuse Punk component
-  let part1 = toAddress && toAddress.substr(2, 20);
-  let part2 = toAddress && toAddress.substr(22);
-  const x = parseInt(part1, 16) % 100;
-  const y = parseInt(part2, 16) % 100;
-
-  const iconPunkSize = 32;
 
   let statusBackgroundColor = "#e0e0e0";
   let statusMessage = "In Progress";
@@ -81,20 +81,13 @@ export default function TransactionDisplay({
     readableDate = new Date(date).toLocaleDateString(undefined, options);
   }
 
-  let smallImageSrc = undefined;
-
-  if (chainId == NETWORKS.ethereum.chainId) {
-    smallImageSrc = "ethereum-bgfill-icon.svg";
-  } else if (chainId == NETWORKS.polygon.chainId) {
-    smallImageSrc = "polygon-bgfill-icon.svg";
-  } else if (chainId == NETWORKS.gnosis.chainId) {
-    smallImageSrc = "gnosis-bgfill-icon.svg";
-  }
-
   let incomingOrder = false;
   if (kind && kind == OrderKind.issue) {
     incomingOrder = true;
   }
+
+  const smallImageSrc = getNetworkImgSrc(chainId);
+  const smallImageSrcCrossChain = crossChainName ? getNetworkImgSrc(getNetworkChainId(crossChainName)) : undefined;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", backgroundColor: "" }}>
@@ -125,13 +118,35 @@ export default function TransactionDisplay({
               <b>{(kind ? (incomingOrder ? "+" : "-") : "") + Number(amount).toFixed(digits)}</b>
               {erc20TokenName.includes("EUR") ? (
                 <div>
-                  <LogoOnLogo
-                    src1={"EURe.png"}
-                    src2={smallImageSrc}
-                    showImage2={smallImageSrc !== undefined}
-                    sizeMultiplier1={1.24}
-                    sizeMultiplier2={0.5}
-                  />
+                  {crossChainName ? (
+                    <>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <LogoOnLogo
+                        src1={"EURe.png"}
+                        src2={incomingOrder ? smallImageSrcCrossChain : smallImageSrc}
+                        sizeMultiplier1={1.24}
+                        sizeMultiplier2={0.5}
+                      />
+                      <div>-></div>
+
+                      <LogoOnLogo
+                        src1={"EURe.png"}
+                        src2={incomingOrder ? smallImageSrc : smallImageSrcCrossChain}
+                        sizeMultiplier1={1.24}
+                        sizeMultiplier2={0.5}
+                      />
+                    </div>
+                      {crossChainTargetAddress && !isCrossChainSameAddress && punkWithShortAddress(crossChainTargetAddress, {fontSize: "0.7em"})}
+                    </>
+                  ) : (
+                    <LogoOnLogo
+                      src1={"EURe.png"}
+                      src2={smallImageSrc}
+                      showImage2={smallImageSrc !== undefined}
+                      sizeMultiplier1={1.24}
+                      sizeMultiplier2={0.5}
+                    />
+                  )}
                 </div>
               ) : (
                 <div>
@@ -154,24 +169,7 @@ export default function TransactionDisplay({
       )}
 
       {toAddress ? (
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: "" }}>
-          <div style={{ position: "relative", width: iconPunkSize, height: iconPunkSize, overflow: "hidden" }}>
-            <img
-              src="/punks.png"
-              style={{
-                position: "absolute",
-                left: -iconPunkSize * x,
-                top: -iconPunkSize * y,
-                width: iconPunkSize * 100,
-                height: iconPunkSize * 100,
-                imageRendering: "pixelated",
-              }}
-            />
-          </div>
-          <div style={{ paddingRight: "1em" }}>
-            <b>{getShortAddress(toAddress)}</b>
-          </div>
-        </div>
+        punkWithShortAddress(toAddress)
       ) : (
         iban && (
           <div style={{ backgroundColor: "" }}>
@@ -221,3 +219,31 @@ export default function TransactionDisplay({
     </div>
   );
 }
+
+const punkWithShortAddress = (address, style) => (
+  <div style={{ display: "flex", justifyContent: "center", alignItems: "center", ...style }}>
+    <Punk address={address} size={32} />
+
+    <div style={{ paddingRight: "1em" }}>
+      <b>{getShortAddress(address)}</b>
+    </div>
+  </div>
+);
+
+const getNetworkImgSrc = chainId => {
+  if (!chainId) {
+    return undefined;
+  }
+
+  let smallImageSrc;
+
+  if (chainId == NETWORKS.ethereum.chainId) {
+    smallImageSrc = "ethereum-bgfill-icon.svg";
+  } else if (chainId == NETWORKS.polygon.chainId) {
+    smallImageSrc = "polygon-bgfill-icon.svg";
+  } else if (chainId == NETWORKS.gnosis.chainId) {
+    smallImageSrc = "gnosis-bgfill-icon.svg";
+  }
+
+  return smallImageSrc;
+};
