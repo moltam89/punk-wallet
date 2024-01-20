@@ -13,7 +13,7 @@ import {
   getShortAddress,
 } from "../helpers/MoneriumHelper";
 
-const optionSize = 20;
+const optionSize = 28;
 
 export default function MoneriumCrossChainAddressSelector({
   clientData,
@@ -79,11 +79,11 @@ const punkWithShortAddress = (address, size = 32) => (
         position: "",
       }}
     >
-      <div style={{ position: "absolute", opacity: "0.5", width: size + 8, height: size + 8, backgroundColor: "red" }}>
-        <Blockie address={address} scale={(11.5 * 8) / (size + 8)} />
+      <div style={{ position: "absolute", opacity: "0.5", width: size, height: size, backgroundColor: "red" }}>
+        <Blockie address={address} size={8} scale={size/8} />
       </div>
       <div style={{ position: "absolute", backgroundColor: "" }}>
-        <Punk address={address} size={size + 8} />
+        <Punk address={address} size={size} />
       </div>
     </div>
     <div style={{ flexGrow: 2, backgroundColor: "" }}>{getShortAddress(address)}</div>
