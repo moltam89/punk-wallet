@@ -2,7 +2,7 @@ import React from "react";
 import QR from "qrcode.react";
 import { message } from "antd";
 
-import { Blockie, Punk } from ".";
+import { Punk, PunkBlockie } from ".";
 
 import { copy } from "../helpers/EditorHelper";
 
@@ -55,12 +55,8 @@ export default function QRPunkBlockie({ address, showAddress, withQr, scale }) {
           </div>
         )}
 
-        <div style={{ position: "absolute", opacity: "0.5", width: punkSize, height: punkSize }}>
-          <Blockie address={address} scale={blockieScale} />
-        </div>
-
         <div style={{ position: "absolute" }}>
-          <Punk address={address} size={punkSize} />
+          <PunkBlockie address={address} size={punkSize} />
         </div>
       </div>
 
