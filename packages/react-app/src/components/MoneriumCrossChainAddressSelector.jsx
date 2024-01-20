@@ -76,8 +76,7 @@ const punkWithShortAddress = (address, size = 32) => (
     }}
   >
     <div>
-      <PunkBlockie address={address} size={size}/>
-      
+      <PunkBlockie address={address} size={size} />
     </div>
     <div style={{ backgroundColor: "red" }}>{getShortAddress(address)}</div>
   </div>

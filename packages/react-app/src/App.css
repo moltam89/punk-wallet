@@ -20,8 +20,8 @@
   grid-row: 1 / 1;
 }
 .outer .below {
-  z-index: 1;
+  z-index: 0;
 }
 .outer .top {
-  z-index: 2;
+  z-index: 1;
 }
