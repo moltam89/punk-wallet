@@ -68,24 +68,24 @@ const option = address => (
 );
 
 const punkWithShortAddress = (address, size = 32) => (
-  <>
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        width: 222,
-        margin: "auto",
-        position: "",
-      }}
-    >
-      <div style={{ position: "absolute", opacity: "0.5", width: size, height: size, backgroundColor: "red" }}>
-        <Blockie address={address} scale={size/8} />
-      </div>
-      <div style={{ position: "absolute", backgroundColor: "" }}>
-        <Punk address={address} size={size} />
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      backgroundColor: "ghostWhite",
+    }}
+  >
+    <div>
+      <div class="outer">
+        <div class="below" style={{ opacity: "0.5", width: size, height: size }}>
+          <Blockie address={address} scale={size / 8} />
+        </div>
+        <div class="top" style={{ backgroundColor: "" }}>
+          <Punk address={address} size={size} />
+        </div>
       </div>
     </div>
-    <div style={{ flexGrow: 2, backgroundColor: "" }}>{getShortAddress(address)}</div>
-  </>
+    <div style={{ backgroundColor: "red" }}>{getShortAddress(address)}</div>
+  </div>
 );
