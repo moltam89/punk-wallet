@@ -80,7 +80,7 @@ const punkWithShortAddress = (address, size = 32) => (
       }}
     >
       <div style={{ position: "absolute", opacity: "0.5", width: size, height: size, backgroundColor: "red" }}>
-        <Blockie address={address} size={8} scale={size/8} />
+        <Blockie address={address} scale={size/8} />
       </div>
       <div style={{ position: "absolute", backgroundColor: "" }}>
         <Punk address={address} size={size} />
