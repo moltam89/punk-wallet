@@ -6,6 +6,8 @@ import { Blockie, Punk } from ".";
 
 import { copy } from "../helpers/EditorHelper";
 
+export const BLOCKIES_DEFAULT_SIZE = 8;
+
 export default function QRPunkBlockie({ address, showAddress, withQr, scale }) {
   const hardcodedSizeForNow = 380;
   let blockieScale = 11.5;
@@ -14,7 +16,7 @@ export default function QRPunkBlockie({ address, showAddress, withQr, scale }) {
     blockieScale = blockieScale * scale;
   }
 
-  const punkSize = blockieScale * 8; // Make punk image the same size as the blockie, from https://github.com/ethereum/blockies: width/height of the icon in blocks, default: 8
+  const punkSize = blockieScale * BLOCKIES_DEFAULT_SIZE; // Make punk image the same size as the blockie, from https://github.com/ethereum/blockies: width/height of the icon in blocks, default: 8
 
   return (
     <span

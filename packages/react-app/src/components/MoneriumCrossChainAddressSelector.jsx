@@ -4,7 +4,7 @@ import { Radio, Select, Space } from "antd";
 
 import { NETWORKS } from "../constants";
 
-import { Blockie, Punk } from "./";
+import { PunkBlockie } from "./";
 
 import {
   capitalizeFirstLetter,
@@ -72,19 +72,12 @@ const punkWithShortAddress = (address, size = 32) => (
     style={{
       display: "flex",
       alignItems: "center",
-      justifyContent: "space-between",
-      backgroundColor: "ghostWhite",
+      justifyContent: "space-around",
     }}
   >
     <div>
-      <div class="outer">
-        <div class="below" style={{ opacity: "0.5", width: size, height: size }}>
-          <Blockie address={address} scale={size / 8} />
-        </div>
-        <div class="top" style={{ backgroundColor: "" }}>
-          <Punk address={address} size={size} />
-        </div>
-      </div>
+      <PunkBlockie address={address} size={size}/>
+      
     </div>
     <div style={{ backgroundColor: "red" }}>{getShortAddress(address)}</div>
   </div>

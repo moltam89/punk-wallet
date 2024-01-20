@@ -26,6 +26,7 @@ export { default as NetworkDisplay } from "./NetworkDisplay";
 export { default as PasteButton } from "./PasteButton";
 export { default as Provider } from "./Provider";
 export { default as Punk } from "./Punk";
+export { default as PunkBlockie } from "./PunkBlockie";
 export { default as QRPunkBlockie } from "./QRPunkBlockie";
 export { default as Ramp } from "./Ramp";
 export { default as SelectorWithSettings } from "./SelectorWithSettings";
