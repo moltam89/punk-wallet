@@ -34,7 +34,8 @@ export const getAvailableTargetChainNames = currentChainName =>
   TARGET_CHAIN_NAMES.filter(targetChainName => targetChainName.toLowerCase() !== currentChainName.toLowerCase());
 
 export const capitalizeFirstLetter = networkName => networkName.charAt(0).toUpperCase() + networkName.slice(1);
-export const getNetwork = networkName => Object.values(NETWORKS).find(network => network.name.toLowerCase() == networkName.toLowerCase());
+export const getNetwork = networkName =>
+  Object.values(NETWORKS).find(network => network.name.toLowerCase() == networkName.toLowerCase());
 export const getNetworkColor = networkName => getNetwork(networkName).color;
 export const getNetworkChainId = networkName => getNetwork(networkName).chainId;
 
@@ -125,6 +126,7 @@ export const getData = async (client, currentPunkAddress) => {
     }
 
     const addressesArray = Array.from(addressesSet);
+    placeAddressToFirstPlace(currentPunkAddress, addressesArray);
 
     const punkConnected = addressesArray.includes(currentPunkAddress);
 
@@ -153,8 +155,8 @@ export const getData = async (client, currentPunkAddress) => {
     return {
       name,
       accountArrayIban,
-      //addressesArray,
-      addressesArray: addressesArray.toSpliced(1, addressesArray.length - 4),
+      addressesArray,
+      //addressesArray: addressesArray.toSpliced(1, addressesArray.length - 4),
       punkConnected,
       punkBalances,
     };
@@ -209,8 +211,7 @@ export const getShortAddress = address => {
 
   try {
     checksummedAddress = ethers.utils.getAddress(address);
-  }
-  catch(error) {
+  } catch (error) {
     console.error("Coudn't get checksummed address", error);
   }
 
@@ -236,7 +237,11 @@ export const placeCrossChainOrder = async (client, currentPunkAddress, crossChai
   try {
     amount = amount.toString();
 
-    const placeOrderMessageString = placeOrderMessage(amount, crossChainObject.address, getNetworkChainId(crossChainObject.targetChainName));
+    const placeOrderMessageString = placeOrderMessage(
+      amount,
+      crossChainObject.address,
+      getNetworkChainId(crossChainObject.targetChainName),
+    );
 
     const signedPlaceOrderMessage = await signMessage(placeOrderMessageString);
 
@@ -245,8 +250,8 @@ export const placeCrossChainOrder = async (client, currentPunkAddress, crossChai
         standard: PaymentStandard.chain,
         address: crossChainObject.address,
         chain: crossChainObject.targetChainName,
-        network: "mainnet"
-      }
+        network: "mainnet",
+      },
     };
 
     const orderObject = {
@@ -256,7 +261,7 @@ export const placeCrossChainOrder = async (client, currentPunkAddress, crossChai
       address: currentPunkAddress,
       counterpart: counterpart,
       chain: chain,
-      network: "mainnet"
+      network: "mainnet",
     };
 
     const order = await client.placeOrder(orderObject);
@@ -315,6 +320,14 @@ export const removeWhiteSpaces = stringy => {
   return stringy.trim().replace(/\s+/g, "");
 };
 
+export const isIbanAddressObjectValid = ibanAddressObject => {
+  const firstName = ibanAddressObject.firstName;
+  const lastName = ibanAddressObject.lastName;
+  const memo = ibanAddressObject.memo;
+
+  return isNameValid(firstName) && isNameValid(lastName) && isMemoValid(memo);
+};
+
 export const isValidIban = iban => {
   return ibantools.isValidIBAN(removeWhiteSpaces(iban));
 };
@@ -365,10 +378,18 @@ const isMemoValid = memo => {
   return true;
 };
 
-export const isIbanAddressObjectValid = ibanAddressObject => {
-  const firstName = ibanAddressObject.firstName;
-  const lastName = ibanAddressObject.lastName;
-  const memo = ibanAddressObject.memo;
+const placeAddressToFirstPlace = (address, addressesArray) => {
+  try {
+    const index = addressesArray.indexOf(address);
 
-  return isNameValid(firstName) && isNameValid(lastName) && isMemoValid(memo);
+    if (index !== -1) {
+      addressesArray.splice(index, 1);
+
+      addressesArray.unshift(address);
+    }
+  } catch (error) {
+    console.error("Coudn't place address to first place", address, addressesArray, error);
+  }
 };
+
+
