@@ -62,7 +62,7 @@ const radio = networkName => {
 };
 
 const option = address => (
-  <Select.Option key={address} value={address} style={{ lineHeight: 2.5 }}>
+  <Select.Option key={address} value={address} style={{ lineHeight: 2 }}>
     {punkWithShortAddress(address, optionSize)}
   </Select.Option>
 );
@@ -72,12 +72,11 @@ const punkWithShortAddress = (address, size = 32) => (
     style={{
       display: "flex",
       alignItems: "center",
-      justifyContent: "space-around",
     }}
   >
-    <div>
+    <div style={{ flexGrow: 1 }}>
       <PunkBlockie address={address} size={size} />
     </div>
-    <div style={{ backgroundColor: "red" }}>{getShortAddress(address)}</div>
+    <div style={{ flexGrow: 2, fontSize: size * 0.66 }}>{getShortAddress(address)}</div>
   </div>
 );
