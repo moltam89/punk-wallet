@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
 
-import { Button, Popover, Spin } from "antd";
-import { RiseOutlined, FallOutlined } from "@ant-design/icons";
-
 import moment from "moment";
+
+import { Button, Popover, Spin, message } from "antd";
+import { CopyOutlined, RiseOutlined, FallOutlined } from "@ant-design/icons";
 
 import { useLocalStorage } from "../hooks";
 
-import { LogoOnLogo, TokenDisplay, Punk } from "./";
+import { LogoOnLogo, TokenDisplay, Punk, PunkBlockie } from "./";
 
+import { copy } from "../helpers/EditorHelper";
 import { getNetworkChainId, getShortAddress } from "../helpers/MoneriumHelper";
 
 import { NETWORKS } from "../constants";
@@ -120,23 +121,26 @@ export default function TransactionDisplay({
                 <div>
                   {crossChainName ? (
                     <>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <LogoOnLogo
-                        src1={"EURe.png"}
-                        src2={incomingOrder ? smallImageSrcCrossChain : smallImageSrc}
-                        sizeMultiplier1={1.24}
-                        sizeMultiplier2={0.5}
-                      />
-                      <div>-></div>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <LogoOnLogo
+                          src1={"EURe.png"}
+                          src2={incomingOrder ? smallImageSrcCrossChain : smallImageSrc}
+                          sizeMultiplier1={1.24}
+                          sizeMultiplier2={0.5}
+                        />
+                        <div>-></div>
 
-                      <LogoOnLogo
-                        src1={"EURe.png"}
-                        src2={incomingOrder ? smallImageSrc : smallImageSrcCrossChain}
-                        sizeMultiplier1={1.24}
-                        sizeMultiplier2={0.5}
-                      />
-                    </div>
-                      {crossChainTargetAddress && !isCrossChainSameAddress && punkWithShortAddress(crossChainTargetAddress, {fontSize: "0.7em"})}
+                        <LogoOnLogo
+                          src1={"EURe.png"}
+                          src2={incomingOrder ? smallImageSrc : smallImageSrcCrossChain}
+                          sizeMultiplier1={1.24}
+                          sizeMultiplier2={0.5}
+                        />
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        {PunkBlockieWithCopyButton(currentPunkAddress)}
+                        {PunkBlockieWithCopyButton(crossChainTargetAddress)}
+                      </div>
                     </>
                   ) : (
                     <LogoOnLogo
@@ -168,23 +172,21 @@ export default function TransactionDisplay({
         )
       )}
 
-      {toAddress ? (
-        punkWithShortAddress(toAddress)
-      ) : (
-        iban && (
-          <div style={{ backgroundColor: "" }}>
-            <div>
-              <b>{iban}</b>
-            </div>
-            {name && (
+      {toAddress
+        ? punkWithShortAddress(toAddress)
+        : iban && (
+            <div style={{ backgroundColor: "" }}>
               <div>
-                <b>{name}</b>
+                <b>{iban}</b>
               </div>
-            )}
-            {memo && <div>{memo}</div>}
-          </div>
-        )
-      )}
+              {name && (
+                <div>
+                  <b>{name}</b>
+                </div>
+              )}
+              {memo && <div>{memo}</div>}
+            </div>
+          )}
 
       {status && (
         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", paddingTop: "1em" }}>
@@ -220,6 +222,17 @@ export default function TransactionDisplay({
   );
 }
 
+const PunkBlockieWithCopyButton = (address) => (
+  <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+    {address && <PunkBlockie address={address} size={24} />}
+    <CopyOutlined
+      style={{ fontSize: 16, cursor: "pointer" }}
+      onClick={() =>
+        copy(address, () => message.success(<span style={{ position: "relative" }}>Copied Address</span>))
+      }
+    />
+  </div>
+);
 const punkWithShortAddress = (address, style) => (
   <div style={{ display: "flex", justifyContent: "center", alignItems: "center", ...style }}>
     <Punk address={address} size={32} />

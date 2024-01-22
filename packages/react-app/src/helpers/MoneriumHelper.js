@@ -16,8 +16,8 @@ const RELAYER_PK = process.env.REACT_APP_RELAYER_PK;
 //const REDIRECT_URI = "https://punkwallet.io/";
 //const REDIRECT_URI = "https://localhost:3000/";
 //const REDIRECT_URI = "https://redirectmeto.com/http://localhost:3000";
-//const REDIRECT_URI = "https://redirectmeto.com/http://192.168.0.101:3000/";
-const REDIRECT_URI = "https://redirectmeto.com/http://192.168.1.76:3000/";
+const REDIRECT_URI = "https://redirectmeto.com/http://192.168.0.101:3000/";
+//const REDIRECT_URI = "https://redirectmeto.com/http://192.168.1.76:3000/";
 
 const KEY_CODE_VERIFIER = "moneriumCodeVerifier";
 const KEY_REFRESH_TOKEN = "moneriumRefreshToken";
