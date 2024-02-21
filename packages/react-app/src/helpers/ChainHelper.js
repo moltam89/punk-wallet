@@ -13,7 +13,8 @@ const getChains = async () => {
    const response = await fetch('https://chainid.network/chains.json');
    if (!response.ok) {
       // In case of error use currentChains
-      throw new Error('Couldn\'t fetch chains');
+      // throw new Error('Couldn\'t fetch chains');
+      return null
    }
    const json = await response.json();
    return json;
