@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import { Button, Select, Tooltip } from "antd";
-import { DeleteOutlined } from "@ant-design/icons";
+import { Select, Tooltip } from "antd";
 
 import { getBLockExplorer, getBLockExplorers, getChain } from "../helpers/ChainHelper";
 import { SELECTED_BLOCK_EXPORER_NAME_KEY } from "../helpers/NetworkSettingsHelper";
@@ -12,10 +11,18 @@ export default function NetworkDetailedDisplay({
   networkCoreDisplay,
   setTargetNetwork,
 }) {
-  const chain = getChain(network.chainId);
+  const [chain, setChain] = useState(null)
 
-  return (
-    <>
+  
+  useEffect(()=> {
+    const getCurrentChain = async () => {
+      return await getChain(network.chainId)
+    }
+    
+    getCurrentChain().then(data => setChain(data))
+  }, [])
+
+  return chain && <>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1em" }}>
         {networkCoreDisplay && networkCoreDisplay(network)}
       </div>
@@ -39,7 +46,7 @@ export default function NetworkDetailedDisplay({
         </div>
       </div>
     </>
-  );
+
 }
 
 const BlockExplorerSelector = ({ networkSettingsHelper, network, chain, setTargetNetwork }) => {
