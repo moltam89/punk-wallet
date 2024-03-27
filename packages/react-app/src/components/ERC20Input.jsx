@@ -59,14 +59,24 @@ export default function ERC20Input({ token, balance, dollarMode, setDollarMode, 
 
   return (
     <div>
-      <span
-        style={{ cursor: "pointer", color: "red", float: "right", marginTop: "-5px" }}
+      <button
+        type="button"
+        style={{
+          cursor: "pointer",
+          color: "red",
+          float: "right",
+          marginTop: "-5px",
+          border: "none",
+          backgroundColor: "transparent",
+          width: "50px",
+          height: "30px",
+        }}
         onClick={() => {
           handleMax(token, setAmount, balance, setDisplayValue, dollarMode, price, setUserValue);
         }}
       >
         max
-      </span>
+      </button>
       <Input
         value={displayValue}
         placeholder={"amount in " + (dollarMode ? "USD" : token.name)}

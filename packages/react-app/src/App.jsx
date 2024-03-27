@@ -1,4 +1,11 @@
-import { CaretUpOutlined, ScanOutlined, SendOutlined, HistoryOutlined } from "@ant-design/icons";
+import {
+  CaretUpOutlined,
+  ScanOutlined,
+  SendOutlined,
+  HistoryOutlined,
+  DownCircleOutlined,
+  UpCircleOutlined,
+} from "@ant-design/icons";
 import { StaticJsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 import { formatEther, parseEther } from "@ethersproject/units";
 import WalletConnectProvider from "@walletconnect/web3-provider";
@@ -40,7 +47,8 @@ import {
 } from "./components";
 import { INFURA_ID, NETWORK, NETWORKS } from "./constants";
 import { Transactor } from "./helpers";
-import { useBalance, useExchangePrice, useGasPrice, useLocalStorage, usePoller, useUserProvider } from "./hooks";
+import { useBalance, useExchangePrice, useLocalStorage, usePoller, useUserProvider } from "./hooks";
+import { useGasPrice } from "./hooks/GasPrice";
 
 import WalletConnect from "@walletconnect/client";
 
@@ -86,6 +94,8 @@ import {
 } from "./helpers/TokenSettingsHelper";
 
 import { getChain } from "./helpers/ChainHelper";
+import { sendTokenTransaction } from "./helpers/NativeTokenHelper";
+import { TxSpeed } from "./components/Send/TxSpeed";
 
 const { confirm } = Modal;
 
@@ -226,7 +236,7 @@ function App(props) {
   const price = useExchangePrice(targetNetwork, mainnetProvider);
 
   /* 🔥 This hook will get the price of Gas from ⛽️ EtherGasStation */
-  const gasPrice = useGasPrice(targetNetwork, "fast", localProvider);
+  const gasPrice = useGasPrice(targetNetwork, "high", localProvider);
   // Use your injected provider from 🦊 Metamask or if you don't have it then instantly generate a 🔥 burner wallet.
   const userProvider = useUserProvider(injectedProvider, localProvider);
   const address = useUserAddress(userProvider);
@@ -460,6 +470,8 @@ function App(props) {
   const [wallectConnectConnectorSession, setWallectConnectConnectorSession] = useLocalStorage(
     "wallectConnectConnectorSession",
   );
+
+  const [txSpeed, setTxSpeed] = useState("medium");
 
   const [web3wallet, setWeb3wallet] = useState();
   // Wallet Connect V2 initialization and listeners
@@ -846,9 +858,9 @@ function App(props) {
             networkSettingsHelper.updateSelectedName(incomingNetwork.name);
             setTargetNetwork(networkSettingsHelper.getSelectedItem(true));
 
-            let pushStateURL = "/"
+            let pushStateURL = "/";
 
-            if ((incomingParts.length > 1) && incomingParts[1] == "pk") {
+            if (incomingParts.length > 1 && incomingParts[1] == "pk") {
               pushStateURL = "pk" + window.location.hash;
             }
 
@@ -923,6 +935,18 @@ function App(props) {
   const [balanceERC20, setBalanceERC20] = useState(null);
 
   const [priceERC20, setPriceERC20] = useState();
+
+  const [sendWarning, setSendWarning] = useState(" ");
+
+  const [showTxSpeed, setShowTxSpeed] = useState(false);
+  const [showTxDetailsButton, setShowTxDetailsButton] = useState(false);
+
+  /// displayValue can be token or usd in the Input Send field
+  const [displayValue, setDisplayValue] = useState();
+
+  /// from Infura
+  const [suggestedMaxFeePerGas, setSuggestedMaxFeePerGas] = useState();
+  const [gasLimit, setGasLimit] = useState();
 
   const walletDisplay =
     web3Modal && web3Modal.cachedProvider ? (
@@ -1193,126 +1217,170 @@ function App(props) {
             <EtherInput
               price={price || targetNetwork.price}
               value={amount}
-              token={targetNetwork.token || "ETH"}
-              ethMode={amountEthMode}
-              address={address}
+              amount={amount}
+              setAmount={setAmount}
               provider={localProvider}
+              toAddress={toAddress}
+              dollarMode={dollarMode}
+              setDollarMode={setDollarMode}
+              balance={yourLocalBalance}
               gasPrice={gasPrice}
-              onChange={value => {
-                setAmount(value);
+              suggestedMaxFeePerGas={suggestedMaxFeePerGas}
+              setSuggestedMaxFeePerGas={setSuggestedMaxFeePerGas}
+              network={targetNetwork}
+              setSendWarning={setSendWarning}
+              displayValue={displayValue}
+              setDisplayValue={setDisplayValue}
+              txSpeed={txSpeed}
+              gasLimit={gasLimit}
+              setGasLimit={setGasLimit}
+              setShowTxDetailsButton={setShowTxDetailsButton}
+            />
+          )}
+        </div>
+
+        <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+          {!selectedErc20Token ? (
+            <>
+              <div>
+                <div style={{ fontSize: "10px", color: "red", minHeight: "18px", marginRight: "40px" }}>
+                  {sendWarning}
+                </div>
+              </div>
+              {showTxDetailsButton && suggestedMaxFeePerGas ? (
+                <button
+                  style={{
+                    fontSize: "16px",
+                    color: "grey",
+                    minHeight: "18px",
+                    backgroundColor: "transparent",
+                    border: "none",
+                    marginRight: "15px",
+                    width: "30px",
+                    height: "30px",
+                  }}
+                  onClick={() => setShowTxSpeed(!showTxSpeed)}
+                >
+                  {showTxSpeed ? <UpCircleOutlined /> : <DownCircleOutlined />}
+                </button>
+              ) : (
+                <span
+                  style={{
+                    display: "inline-block",
+                    minHeight: "18px",
+                    width: "30px",
+                    height: "30px",
+                    fontSize: "16px",
+                    color: "grey",
+                    minHeight: "18px",
+                    backgroundColor: "transparent",
+                    border: "none",
+                    marginRight: "15px",
+                  }}
+                />
+              )}
+            </>
+          ) : (
+            <span
+              style={{
+                display: "inline-block",
+                minHeight: "18px",
+                width: "30px",
+                height: "30px",
+                fontSize: "16px",
+                color: "grey",
+                minHeight: "18px",
+                backgroundColor: "transparent",
+                border: "none",
+                marginRight: "15px",
               }}
             />
           )}
         </div>
 
-        <div style={{ position: "relative", top: 10, left: 40 }}> {networkDisplay} </div>
+        <div style={{ marginTop: "0px" }}>
+          {!selectedErc20Token && suggestedMaxFeePerGas && (
+            <>
+              {showTxSpeed && showTxDetailsButton && (
+                <TxSpeed
+                  txSpeed={txSpeed}
+                  setTxSpeed={setTxSpeed}
+                  suggestedMaxFeePerGas={suggestedMaxFeePerGas}
+                  gasLimit={gasLimit}
+                  price={price || targetNetwork.price}
+                  targetNetwork={targetNetwork}
+                />
+              )}
+            </>
+          )}
+        </div>
 
-        <div style={{ padding: 10 }}>
-          {
-            <Button
-              key="submit"
-              type="primary"
-              disabled={
-                loading ||
-                !amount ||
-                (!toAddress && !(isMoneriumTransferReady && isCrossChain(moneriumRadio))) ||
-                (isValidIban(toAddress) && !isIbanAddressObjectValid(ibanAddressObject))
-              }
-              loading={loading}
-              onClick={async () => {
-                setLoading(true);
-
-                if (isMoneriumTransferReady && isCrossChain(moneriumRadio)) {
-                  const order = await placeCrossChainOrder(
-                    moneriumClient,
-                    address,
-                    { targetChainName: moneriumTargetChain, address: moneriumTargetAddress },
-                    amount,
-                    networkName,
-                  );
-                  await initMoneriumOrders();
-                } else if (isValidIban(toAddress)) {
-                  const order = await placeIbanOrder(moneriumClient, address, ibanAddressObject, amount, networkName);
-                  await initMoneriumOrders();
-                } else {
-                  let txConfig = {
-                    chainId: selectedChainId,
-                  };
-
-                  if (!selectedErc20Token) {
-                    let value;
-                    try {
-                      console.log("PARSE ETHER", amount);
-                      value = parseEther("" + amount);
-                      console.log("PARSEDVALUE", value);
-                    } catch (e) {
-                      const floatVal = parseFloat(amount).toFixed(8);
-
-                      console.log("floatVal", floatVal);
-                      // failed to parseEther, try something else
-                      value = parseEther("" + floatVal);
-                      console.log("PARSEDfloatVALUE", value);
-                    }
-
-                    txConfig.to = toAddress;
-                    txConfig.value = value;
-                  } else {
-                    if (selectedErc20Token) {
-                      txConfig.erc20 = {
-                        token: selectedErc20Token,
-                        to: toAddress,
-                        amount: amount,
-                      };
-                    }
-                  }
-
-                  if (networkName == "arbitrum") {
-                    //txConfig.gasLimit = 21000;
-                    //ask rpc for gas price
-                  } else if (networkName == "optimism") {
-                    //ask rpc for gas price
-                  } else if (networkName == "gnosis") {
-                    //ask rpc for gas price
-                  } else if (networkName == "polygon") {
-                    //ask rpc for gas price
-                  } else if (networkName == "goerli") {
-                    //ask rpc for gas price
-                  } else if (networkName == "sepolia") {
-                    //ask rpc for gas price
-                  } else {
-                    txConfig.gasPrice = gasPrice;
-                  }
-
-                  console.log("SEND AND NETWORK", targetNetwork);
-
-                  let result = tx(txConfig);
-                  result = await result;
-                  console.log(result);
-                }
-
-                // setToAddress("")
-                setAmount("");
-                setData("");
-
-                setShowHistory(true);
-                setLoading(false);
-
-                monitorBalance(selectedErc20Token, targetNetwork.rpcUrl, address, balanceERC20, setBalanceERC20);
-              }}
-            >
-              {loading ||
+        <div style={{ padding: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <Button
+            key="submit"
+            type="primary"
+            disabled={
+              loading ||
               !amount ||
+              parseFloat(amount) <= 0 ||
               (!toAddress && !(isMoneriumTransferReady && isCrossChain(moneriumRadio))) ||
-              (isValidIban(toAddress) && !isIbanAddressObjectValid(ibanAddressObject)) ? (
-                <CaretUpOutlined />
-              ) : (
-                <SendOutlined style={{ color: "#FFFFFF" }} />
-              )}{" "}
-              Send
-            </Button>
-          }
+              (isValidIban(toAddress) && !isIbanAddressObjectValid(ibanAddressObject))
+            }
+            loading={loading}
+            onClick={async () => {
+              setLoading(true);
+
+              if (isMoneriumTransferReady && isCrossChain(moneriumRadio)) {
+                const order = await placeCrossChainOrder(
+                  moneriumClient,
+                  address,
+                  { targetChainName: moneriumTargetChain, address: moneriumTargetAddress },
+                  amount,
+                  networkName,
+                );
+                await initMoneriumOrders();
+              } else if (isValidIban(toAddress)) {
+                const order = await placeIbanOrder(moneriumClient, address, ibanAddressObject, amount, networkName);
+                await initMoneriumOrders();
+              } else {
+                sendTokenTransaction({
+                  selectedChainId,
+                  selectedErc20Token,
+                  amount,
+                  gasPrice,
+                  tx,
+                  networkName,
+                  targetNetwork,
+                  suggestedMaxFeePerGas,
+                  toAddress,
+                });
+              }
+
+              setToAddress("");
+              setDisplayValue("");
+              setAmount("");
+              setData("");
+
+              setShowHistory(true);
+              setLoading(false);
+
+              monitorBalance(selectedErc20Token, targetNetwork.rpcUrl, address, balanceERC20, setBalanceERC20);
+            }}
+          >
+            {loading ||
+            !amount ||
+            (!toAddress && !(isMoneriumTransferReady && isCrossChain(moneriumRadio))) ||
+            (isValidIban(toAddress) && !isIbanAddressObjectValid(ibanAddressObject)) ? (
+              <CaretUpOutlined />
+            ) : (
+              <SendOutlined style={{ color: "#FFFFFF" }} />
+            )}
+            Send
+          </Button>
         </div>
       </div>
+
+      <div style={{ position: "relative", top: 35, left: 10 }}> {networkDisplay} </div>
 
       <div style={{ padding: 16, backgroundColor: "#FFFFFF", width: 420, margin: "auto" }}>
         {
