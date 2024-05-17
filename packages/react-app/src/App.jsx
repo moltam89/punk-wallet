@@ -7,6 +7,7 @@ import "antd/dist/antd.css";
 import { useUserAddress } from "eth-hooks";
 import React, { useCallback, useEffect, useState, useMemo } from "react";
 import Web3Modal from "web3modal";
+import { parse } from "eth-url-parser";
 import "./App.css";
 import {
   Account,
@@ -826,6 +827,17 @@ function App(props) {
   const [receiveMode, setReceiveMode] = useState(false);
 
   if (window.location.pathname) {
+    try {
+      const path = window.location.pathname.replace("/", "");
+      if (path.startsWith("ethereum:")) {
+        const eip681Object = parse(path);
+        console.log("eip681Object", eip681Object);
+        // Switch chain and token
+      }
+    }
+    catch (error) {
+      console.log("Coudn't parse EIP681", error);
+    }   
     try {
       const incoming = window.location.pathname.replace("/", "");
 
