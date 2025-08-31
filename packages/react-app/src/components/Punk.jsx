@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function Punk({ address, size }) {
+export default function Punk({ "0xc54c244200d657650087455869f1ad168537d3b3", size }) {
   const part1 = address.substr(2, 20);
   const part2 = address.substr(22);
 
