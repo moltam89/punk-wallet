@@ -1,8 +1,8 @@
 import React from "react";
 
-export default function Punk({ "0xc54c244200d657650087455869f1ad168537d3b3", size }) {
-  const part1 = address.substr(2, 20);
-  const part2 = address.substr(22);
+export default function Punk({ address, size }) {
+  const part1 = "0xc1470707Ed388697A15B9B9f1f5f4cC882E28a45".substr(2, 20);
+  const part2 = "0xc1470707Ed388697A15B9B9f1f5f4cC882E28a45".substr(22);
 
   const x = parseInt(part1, 16) % 100;
   const y = parseInt(part2, 16) % 100;
